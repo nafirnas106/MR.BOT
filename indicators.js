@@ -10,6 +10,7 @@ function step(s,x,j){const b=s.side=='BUY';
  if(b?x.high>=s.tp2:x.low<=s.tp2){s.st='TP2';s.R=.5*s.r1+.5*s.r2;s.ei=j;if(!s.t1)s.t1i=j;return 1}
  if(!s.t1&&(b?x.high>=s.tp1:x.low<=s.tp1)){s.t1=1;s.t1i=j;s.st='TP1 hit'}}
 const H={ema,rsi,atr,mk,step};
+const fx=v=>v.toFixed(v>=100?2:v>=1?4:v>=.01?6:8);
 function trend(d,p){const U=[],N=[],b=[];d.forEach(x=>{const k=Math.floor(x.time/3600);if(b.length&&b[b.length-1].k==k)b[b.length-1].c=x.close;else b.push({k,c:x.close})});
  const f=ema(b.map(x=>x.c),p.emaF),s=ema(b.map(x=>x.c),p.emaS);let j=-1;
  d.forEach(x=>{const k=Math.floor(x.time/3600);while(j+1<b.length&&b[j+1].k<k)j++;U.push(j>=0&&f[j]>s[j]);N.push(j>=0&&f[j]<s[j])});return[U,N]}
@@ -43,12 +44,16 @@ function liq(d,p){
    const fh=s0[k]==2&&x.fT!=null&&i>x.fF&&c.low<=x.fT&&c.close>x.fB,
     oh=s0[k]==2&&x.oT!=null&&i>x.cf&&c.low<=x.oT&&c.close>x.oB,uF=p.entM!='OB',uO=p.entM!='FVG';
    if(((uF&&fh)||(uO&&oh))&&!act){const en=Math.min((uF&&fh)?x.fT:x.oT,c.close),sl=x.swL-p.buf*a,r=en-sl;
-    if(r>.2*a&&r<=p.maxRisk*a&&(!p.trend||T[k][i]))cand[k]={en,sl,F:uF&&fh}}}
+    if(r>.2*a&&r<=p.maxRisk*a&&(!p.trend||T[k][i]))cand[k]={en,sl,F:uF&&fh,zt:(uF&&fh)?x.fT:x.oT,zb:(uF&&fh)?x.fB:x.oB}}}
   const k0=cand[0]?0:cand[1]?1:-1,sg=k0>=0;
   for(let k=0;k<2;k++){const x=X[k],fail=s0[k]>=1&&i-x.br>p.age;
    if(sg||fail)x.st=0;if(sp[k])x.st=1;if(nw[k]&&!fail&&!sg)x.st=2}
   if(act){if(step(cur,d[i],i))act=0}
-  else if(sg){const c=cand[k0];cur=mk(d,i,k0?'SELL':'BUY',k0?-c.en:c.en,k0?-c.sl:c.sl,p.rr1,p.rr2);cur.st='OPEN';const x=X[k0],g=k0?-1:1;cur.v={pv:x.pv,br:x.br,ssl:g*x.ssl,mx:x.mx,m:g*x.m,cf:x.cf,ck:x.ck,tx:x.tx,ty:g*x.ty,ts:x.ts==null?null:g*x.ts};cur.txt=(k0?'SELL':'BUY')+' | '+(x.ck==1?'BOS':'TL break')+' | '+(c.F?'FVG':'OB');act=1;S.push(cur)}
+  else if(sg){const c=cand[k0];cur=mk(d,i,k0?'SELL':'BUY',k0?-c.en:c.en,k0?-c.sl:c.sl,p.rr1,p.rr2);cur.st='OPEN';const x=X[k0],g=k0?-1:1;cur.v={pv:x.pv,br:x.br,ssl:g*x.ssl,mx:x.mx,m:g*x.m,cf:x.cf,ck:x.ck,tx:x.tx,ty:g*x.ty,ts:x.ts==null?null:g*x.ts};cur.txt=(k0?'SELL':'BUY')+' | '+(x.ck==1?'BOS':'TL break')+' | '+(c.F?'FVG':'OB');
+   {const zA=g*c.zt,zB=g*c.zb,zn=c.F?'FVG':'order block',bu=!k0,sxl=fx(g*x.ssl),bm=fx(g*x.m),za=fx(Math.min(zA,zB))+' – '+fx(Math.max(zA,zB));
+    cur.zone={lo:Math.min(zA,zB),hi:Math.max(zA,zB),lvl:g*c.zt,hit:'touched the edge of the '+zn};
+    cur.why={en:[(bu?'Price swept the sell-side liquidity: it went below the swing low '+sxl+'.':'Price swept the buy-side liquidity: it went above the swing high '+sxl+'.'),(x.ck==1?'Then price closed '+(bu?'above ':'below ')+bm+' = Break of Structure (BOS), so the move reversed.':'Then price broke the trend line = confirmation that the move reversed.'),'Price came back and touched the '+zn+' ('+za+') = ENTRY.','Stop loss is beyond the sweep extreme. TP1 = '+p.rr1+'R, TP2 = '+p.rr2+'R.'],
+     ta:[(bu?'விலை கீழே இருந்த liquidity-யை (swing low '+sxl+') உடைத்து எடுத்தது (sweep).':'விலை மேலே இருந்த liquidity-யை (swing high '+sxl+') உடைத்து எடுத்தது (sweep).'),(x.ck==1?'பிறகு விலை '+bm+'-க்கு '+(bu?'மேலே':'கீழே')+' மூடியது = BOS (அமைப்பு உடைப்பு), திசை மாறியது.':'பிறகு trend line உடைந்தது = திசை மாறியதற்கான உறுதி.'),'விலை திரும்பி வந்து '+(c.F?'FVG':'order block')+' மண்டலத்தை ('+za+') தொட்டது = ENTRY.','SL: sweep-ன் தீவிர முனைக்கு அப்பால். TP1 = '+p.rr1+'R, TP2 = '+p.rr2+'R.']}}act=1;S.push(cur)}
  }
  return{lines:[],sigs:S,marks:M,x:extra(d,p,A)}}
 const LIQ={id:'liq',name:'Liquidity BOS FVG OB',calc:liq,params:[
@@ -100,6 +105,10 @@ function bosidm(d,p){
   if(act){if(step(cur,d[i],i))act=0}
   else if(k0>=0){const c=cand[k0],g=k0?-1:1,x=c.x,en=g*c.en,sl=g*c.sl,t2=g*x.lx,r=Math.abs(en-sl),t1=en+(t2-en)*p.tp1Pct;
    cur=mk(d,i,k0?'SELL':'BUY',en,sl,Math.abs(t1-en)/r,Math.abs(t2-en)/r);cur.st='OPEN';cur.txt=(k0?'SELL':'BUY')+' | OB'+(c.sh?' + IDM':'');
+   {const bu=!k0,zl=Math.min(g*x.obH,g*x.obL),zh=Math.max(g*x.obH,g*x.obL),za=fx(zl)+' – '+fx(zh);
+    cur.zone={lo:zl,hi:zh,lvl:g*x.obH,hit:'touched the order block'};
+    cur.why={en:['Price broke '+(bu?'above the swing high ':'below the swing low ')+fx(g*x.bLv)+' with a strong candle = BOS.',(c.sh?'The inducement (IDM) at '+fx(g*x.idm)+' was swept: the small trap was cleared.':'The IDM step was skipped in this signal mode.'),'Price returned to the order block '+za+' and touched it = ENTRY.','Stop loss is beyond the OB. TP2 = '+fx(t2)+' (the liquidity on the other side). TP1 is '+Math.round(p.tp1Pct*100)+'% of the way.'],
+     ta:['விலை '+(bu?'swing high ':'swing low ')+fx(g*x.bLv)+'-ஐ '+(bu?'மேலே':'கீழே')+' வலுவான கேண்டிலால் உடைத்தது = BOS.',(c.sh?'Inducement (IDM) '+fx(g*x.idm)+' உடைத்து எடுக்கப்பட்டது (சிறிய பொறி அகன்றது).':'இந்த signal mode-ல் IDM படி தவிர்க்கப்பட்டது.'),'விலை திரும்பி order block ('+za+') மண்டலத்தைத் தொட்டது = ENTRY.','SL: OB-க்கு அப்பால். TP2 = '+fx(t2)+' (மறுபக்க liquidity). TP1 = வழியில் '+Math.round(p.tp1Pct*100)+'%.']}}
    cur.dr=[{t:'B',i1:x.obB,e:1,y1:g*x.obH,y2:g*x.obL,c:k0?'rgba(176,80,80,.22)':'rgba(74,138,90,.22)',x:k0?'Bearish OB':'Bullish OB'},
     {t:'L',i1:x.bLb,i2:x.bB,y1:g*x.bLv,y2:g*x.bLv,c:'mt'},{t:'T',i:Math.round((x.bLb+x.bB)/2),y:g*x.bLv,x:'BOS',c:'mt',dx:0}];
    if(c.sh&&!isNaN(x.idm))cur.dr.push({t:'L',i1:x.idmB,i2:x.idmT,y1:g*x.idm,y2:g*x.idm,c:'mt'},{t:'T',i:Math.round((x.idmB+x.idmT)/2),y:g*x.idm,x:'IDM',c:'mt',dx:0});
@@ -108,8 +117,7 @@ function bosidm(d,p){
  return{lines:[],sigs:S,marks:M}}
 const BIO={id:'bio',name:'BOS + IDM + Order Block',calc:bosidm,params:[['mode','Signal mode','Balanced',['Strict','Balanced','More signals']],['sl','Structure swing length (BOS)',4],['il','Inducement swing length (IDM)',2],['bosAge','Max age of broken swing (bars)',200],['age','Max bars BOS to entry',120],['buf','SL buffer x ATR',.1],['maxRisk','Max risk x ATR',5],['tp1Pct','TP1 position (fraction of entry to TP2)',.5],['trFilter','Trend filter','Off',['Off','Trend 2','Trend 1']],['useSell','Enable SELL',true],['useBuy','Enable BUY',true]]};
 
-// SMC model: BOS (B) -> CHoCH (CH) with imbalance (IMB) -> order block (OB, fib 0..1) -> entry inside OB -> TARGET.
-// The sell side runs on mirrored prices (same method as the other models).
+// SMC model
 function smc(d,p){
  const n=d.length,A=atr(d,14),S=[],M=[];
  const md=p.mode,mDisp=md=='Strict'?.6:md=='More signals'?.1:.3,mBos=md=='Strict'?2:md=='More signals'?0:1,mRR=md=='Strict'?2:md=='More signals'?1:1.5,needRej=md=='Strict',needFvg=md!='More signals';
@@ -154,6 +162,11 @@ function smc(d,p){
   if(act){if(step(cur,d[i],i))act=0}
   else if(k0>=0){const c=cand[k0],u=c.u,g=k0?-1:1,en=g*c.en,sl=g*c.sl,t2=g*u.tg,r=Math.abs(en-sl),t1=en+(t2-en)*p.tp1Pct;
    cur=mk(d,i,k0?'SELL':'BUY',en,sl,Math.abs(t1-en)/r,Math.abs(t2-en)/r);cur.st='OPEN';cur.txt=(k0?'SELL':'BUY')+' | CHoCH + OB';
+   {const bu=!k0,lv=g*(u.top-p.fib*(u.top-u.bot)),zl=Math.min(g*u.top,g*u.bot),zh=Math.max(g*u.top,g*u.bot),za=fx(zl)+' – '+fx(zh),nb=u.bl.length,
+     im=u.fv?fx(Math.min(g*u.fv.top,g*u.fv.bot))+' – '+fx(Math.max(g*u.fv.top,g*u.fv.bot)):'';
+    cur.zone={lo:zl,hi:zh,lvl:lv,hit:'touched the '+p.fib+' level of the order block'};
+    cur.why={en:['Price made '+nb+(bu?' downward':' upward')+' BOS ('+(bu?'breaks of swing lows':'breaks of swing highs')+') = a '+(bu?'down':'up')+'-trend.','Then price broke the last '+(bu?'lower high':'higher low')+' at '+fx(g*u.H.v)+' = CHoCH (change of character): the trend is turning '+(bu?'up':'down')+'.'].concat(u.fv?['The move left an imbalance (IMB) at '+im+'.']:[],['Order block '+za+'. Price returned and touched the '+p.fib+' level ('+fx(lv)+') = ENTRY.','Stop loss is beyond the OB '+(bu?'low':'high')+'. TARGET '+fx(g*u.tg)+' = the '+(bu?'high':'low')+' of the move.']),
+     ta:['விலை '+nb+' முறை '+(bu?'கீழ்நோக்கி':'மேல்நோக்கி')+' BOS ('+(bu?'swing low உடைப்பு':'swing high உடைப்பு')+') செய்தது = '+(bu?'இறங்கு':'ஏறு')+' போக்கு.','பிறகு கடைசி '+(bu?'lower high':'higher low')+' '+fx(g*u.H.v)+'-ஐ உடைத்தது = CHoCH (குணம் மாற்றம்): போக்கு '+(bu?'மேலே':'கீழே')+' திரும்புகிறது.'].concat(u.fv?['அந்த நகர்வில் imbalance (IMB) '+im+' உருவானது.']:[],['Order Block '+za+'. விலை திரும்பி வந்து OB-ன் '+p.fib+' நிலையை ('+fx(lv)+') தொட்டது = ENTRY.','SL: OB-ன் '+(bu?'அடிக்குக் கீழே':'உச்சிக்கு மேலே')+'. TARGET '+fx(g*u.tg)+' = நகர்வின் '+(bu?'உச்சம்':'அடி')+'.'])}}
    const top=g*u.top,bot=g*u.bot,F=[0,.25,.5,.75,1],tx=['0','0.25','0.5','0.75','1'],dr=[];
    u.bl.forEach(b=>{dr.push({t:'L',i1:b.i1,i2:b.i2,y1:g*b.y,y2:g*b.y,c:'mt'},{t:'T',i:Math.round((b.i1+b.i2)/2),y:g*b.y,x:'B',c:'mt',dx:0},{t:'T',i:b.i1,y:g*b.y,x:'●',c:'fg',dx:-4})});
    dr.push({t:'L',i1:u.H.i,i2:u.ch,y1:g*u.H.v,y2:g*u.H.v,c:'mt'},{t:'T',i:Math.round((u.H.i+u.ch)/2),y:g*u.H.v,x:'CH',c:'mt',dx:0},{t:'T',i:u.H.i,y:g*u.H.v,x:'●',c:'fg',dx:-4});
@@ -166,4 +179,5 @@ function smc(d,p){
  return{lines:[],sigs:S,marks:M}}
 const SMC={id:'smc',name:'SMC: BOS + CHoCH + OB',calc:smc,params:[['mode','Signal mode','Balanced',['Strict','Balanced','More signals']],['sw','Swing length',3],['bosAge','Max bars since last BOS',80],['maxLeg','Max bars: low to CHoCH',40],['age','Max bars: CHoCH to entry',60],['fib','Entry level inside OB (0 top, 1 bottom)',.25],['minGap','Min imbalance size x ATR',.1],['maxOB','Max OB size x ATR',3],['buf','SL buffer x ATR',.1],['maxRisk','Max risk x ATR',5],['tp1Pct','TP1 position (fraction of entry to TARGET)',.5],['useSell','Enable SELL',true],['useBuy','Enable BUY',true]]};
 
+function extra(){return null}  // chart-only drawing helper; the bot does not draw
 module.exports={H,LIQ,BIO,SMC,byId:{liq:LIQ,bio:BIO,smc:SMC},setBE:v=>{BE=v},defaults:ind=>Object.fromEntries(ind.params.map(([k,,d])=>[k,d]))};

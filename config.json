@@ -1,11 +1,39 @@
 {
   "breakEvenAfterTP1": true,
-  "maxAgeCandles": 15,
+  "maxAgeCandles": 3,
+  "timezone": "Asia/Colombo",
+  "language": "ta",
   "watches": [
-    { "name": "BTC-smc",  "symbol": "BTC/USD", "source": "binance",    "tf": "15m", "indicator": "smc" },
-    { "name": "ETH-smc",  "symbol": "ETH/USD", "source": "binance",    "tf": "15m", "indicator": "smc" },
-    { "name": "BTC-liq",  "symbol": "BTC/USD", "source": "binance",    "tf": "15m", "indicator": "liq", "enabled": false },
-    { "name": "XAU-smc",  "symbol": "XAU/USD", "source": "twelvedata", "tf": "15m", "indicator": "smc", "enabled": false },
-    { "name": "EUR-smc",  "symbol": "EUR/USD", "source": "twelvedata", "tf": "15m", "indicator": "smc", "enabled": false }
+    {
+      "name": "BTC-liq",
+      "symbol": "BTC/USD",
+      "source": "binance",
+      "tf": "15m",
+      "indicator": "liq"
+    },
+    {
+      "name": "ETH-liq",
+      "symbol": "ETH/USD",
+      "source": "binance",
+      "tf": "15m",
+      "indicator": "liq",
+      "enabled": false
+    },
+    {
+      "name": "XAU-liq",
+      "symbol": "XAU/USD",
+      "source": "twelvedata",
+      "tf": "15m",
+      "indicator": "liq",
+      "enabled": false
+    },
+    {
+      "name": "EUR-liq",
+      "symbol": "EUR/USD",
+      "source": "twelvedata",
+      "tf": "15m",
+      "indicator": "liq",
+      "enabled": false
+    }
   ]
 }
