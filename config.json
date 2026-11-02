@@ -1,6 +1,6 @@
 {
   "breakEvenAfterTP1": true,
-  "maxAgeCandles": 3,
+  "maxAgeCandles": 15,
   "watches": [
     { "name": "BTC-smc",  "symbol": "BTC/USD", "source": "binance",    "tf": "15m", "indicator": "smc" },
     { "name": "ETH-smc",  "symbol": "ETH/USD", "source": "binance",    "tf": "15m", "indicator": "smc" },
