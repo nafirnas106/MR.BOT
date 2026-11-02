@@ -3,7 +3,8 @@
 'use strict';
 const fs = require('fs');
 const IND = require('./indicators.js');
-const cfg = JSON.parse(fs.readFileSync('config.json', 'utf8'));
+const cfg = 
+  try { IND.byId.ifv = require('./ifvg.js').IFV; } catch (e) { console.log('IFVG LOAD ERROR: ' + e.message); }JSON.parse(fs.readFileSync('config.json', 'utf8'));
 const TOKEN = process.env.TELEGRAM_TOKEN || '', CHAT = process.env.TELEGRAM_CHAT_ID || '', TDKEY = process.env.TWELVEDATA_KEY || '';
 const SEC = { '1m': 60, '5m': 300, '15m': 900, '30m': 1800, '1h': 3600, '4h': 14400 };
 const TD = { '1m': '1min', '5m': '5min', '15m': '15min', '30m': '30min', '1h': '1h', '4h': '4h' };
