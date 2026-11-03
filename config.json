@@ -9,7 +9,7 @@
       "tf": "15m",
       "indicator": "liq",
       "params": {
-        "sw": 2,
+        "sw": 1,
         "age": 40,
         "cfm": "Either",
         "entM": "FVG or OB",
