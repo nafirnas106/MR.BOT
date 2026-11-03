@@ -1,39 +1,35 @@
 {
   "breakEvenAfterTP1": true,
   "maxAgeCandles": 3,
-  "timezone": "Asia/Colombo",
-  "language": "ta",
   "watches": [
     {
-      "name": "BTC-liq",
+      "name": "BTCUSD-liq",
       "symbol": "BTC/USD",
       "source": "binance",
       "tf": "15m",
-      "indicator": "liq"
-    },
-    {
-      "name": "ETH-liq",
-      "symbol": "ETH/USD",
-      "source": "binance",
-      "tf": "15m",
       "indicator": "liq",
-      "enabled": false
-    },
-    {
-      "name": "XAU-liq",
-      "symbol": "XAU/USD",
-      "source": "twelvedata",
-      "tf": "15m",
-      "indicator": "liq",
-      "enabled": false
-    },
-    {
-      "name": "EUR-liq",
-      "symbol": "EUR/USD",
-      "source": "twelvedata",
-      "tf": "15m",
-      "indicator": "liq",
-      "enabled": false
+      "params": {
+        "sw": 5,
+        "age": 40,
+        "cfm": "BOS",
+        "entM": "FVG or OB",
+        "obBody": false,
+        "strong": true,
+        "strongPct": 62,
+        "rr1": 1,
+        "rr2": 2,
+        "buf": 0.1,
+        "maxRisk": 3,
+        "trend": false,
+        "emaF": 20,
+        "emaS": 50,
+        "showZ": true,
+        "maxZ": 2,
+        "minZ": 0.15,
+        "showLq": true,
+        "showTL": true,
+        "showEP": true
+      }
     }
   ]
 }
