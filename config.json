@@ -9,9 +9,9 @@
       "tf": "15m",
       "indicator": "liq",
       "params": {
-        "sw": 5,
+        "sw": 2,
         "age": 40,
-        "cfm": "BOS",
+        "cfm": "Either",
         "entM": "FVG or OB",
         "obBody": false,
         "strong": true,
