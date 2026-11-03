@@ -1,0 +1,180 @@
+{
+  "breakEvenAfterTP1": true,
+  "maxAgeCandles": 3,
+  "indicators": [
+    "liq",
+    "crt"
+  ],
+  "watches": [
+    {
+      "name": "BTCUSDT-CRT",
+      "symbol": "BTC/USD",
+      "source": "binance",
+      "tf": "5m",
+      "indicator": "crt",
+      "enabled": true,
+      "params": {
+        "htfMin": 120,
+        "slPct": 0.15,
+        "tp1R": 1,
+        "minRR": 1,
+        "ext": 7,
+        "useSell": true,
+        "useBuy": true
+      }
+    },
+    {
+      "name": "ETHUSDT-CRT",
+      "symbol": "ETH/USD",
+      "source": "binance",
+      "tf": "5m",
+      "indicator": "crt",
+      "enabled": true,
+      "params": {
+        "htfMin": 120,
+        "slPct": 0.15,
+        "tp1R": 1,
+        "minRR": 1,
+        "ext": 7,
+        "useSell": true,
+        "useBuy": true
+      }
+    },
+    {
+      "name": "BNBUSDT-CRT",
+      "symbol": "BNB/USD",
+      "source": "binance",
+      "tf": "5m",
+      "indicator": "crt",
+      "enabled": true,
+      "params": {
+        "htfMin": 120,
+        "slPct": 0.15,
+        "tp1R": 1,
+        "minRR": 1,
+        "ext": 7,
+        "useSell": true,
+        "useBuy": true
+      }
+    },
+    {
+      "name": "SOLUSDT-CRT",
+      "symbol": "SOL/USD",
+      "source": "binance",
+      "tf": "5m",
+      "indicator": "crt",
+      "enabled": true,
+      "params": {
+        "htfMin": 120,
+        "slPct": 0.15,
+        "tp1R": 1,
+        "minRR": 1,
+        "ext": 7,
+        "useSell": true,
+        "useBuy": true
+      }
+    },
+    {
+      "name": "XRPUSDT-CRT",
+      "symbol": "XRP/USD",
+      "source": "binance",
+      "tf": "5m",
+      "indicator": "crt",
+      "enabled": true,
+      "params": {
+        "htfMin": 120,
+        "slPct": 0.15,
+        "tp1R": 1,
+        "minRR": 1,
+        "ext": 7,
+        "useSell": true,
+        "useBuy": true
+      }
+    },
+    {
+      "name": "ADAUSDT-CRT",
+      "symbol": "ADA/USD",
+      "source": "binance",
+      "tf": "5m",
+      "indicator": "crt",
+      "enabled": true,
+      "params": {
+        "htfMin": 120,
+        "slPct": 0.15,
+        "tp1R": 1,
+        "minRR": 1,
+        "ext": 7,
+        "useSell": true,
+        "useBuy": true
+      }
+    },
+    {
+      "name": "DOGEUSDT-CRT",
+      "symbol": "DOGE/USD",
+      "source": "binance",
+      "tf": "5m",
+      "indicator": "crt",
+      "enabled": true,
+      "params": {
+        "htfMin": 120,
+        "slPct": 0.15,
+        "tp1R": 1,
+        "minRR": 1,
+        "ext": 7,
+        "useSell": true,
+        "useBuy": true
+      }
+    },
+    {
+      "name": "AVAXUSDT-CRT",
+      "symbol": "AVAX/USD",
+      "source": "binance",
+      "tf": "5m",
+      "indicator": "crt",
+      "enabled": true,
+      "params": {
+        "htfMin": 120,
+        "slPct": 0.15,
+        "tp1R": 1,
+        "minRR": 1,
+        "ext": 7,
+        "useSell": true,
+        "useBuy": true
+      }
+    },
+    {
+      "name": "LINKUSDT-CRT",
+      "symbol": "LINK/USD",
+      "source": "binance",
+      "tf": "5m",
+      "indicator": "crt",
+      "enabled": true,
+      "params": {
+        "htfMin": 120,
+        "slPct": 0.15,
+        "tp1R": 1,
+        "minRR": 1,
+        "ext": 7,
+        "useSell": true,
+        "useBuy": true
+      }
+    },
+    {
+      "name": "DOTUSDT-CRT",
+      "symbol": "DOT/USD",
+      "source": "binance",
+      "tf": "5m",
+      "indicator": "crt",
+      "enabled": true,
+      "params": {
+        "htfMin": 120,
+        "slPct": 0.15,
+        "tp1R": 1,
+        "minRR": 1,
+        "ext": 7,
+        "useSell": true,
+        "useBuy": true
+      }
+    }
+  ]
+}
