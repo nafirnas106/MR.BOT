@@ -3,8 +3,8 @@
   "maxAgeCandles": 3,
   "watches": [
     {
-      "name": "BTCUSD-liq",
-      "symbol": "BTC/USD",
+      "name": "SOLUSD-liq",
+      "symbol": "SOL/USD",
       "source": "binance",
       "tf": "15m",
       "indicator": "liq",
