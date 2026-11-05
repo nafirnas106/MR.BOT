@@ -3,32 +3,21 @@
   "maxAgeCandles": 3,
   "watches": [
     {
-      "name": "SOLUSD-liq",
-      "symbol": "SOL/USD",
+      "name": "ETHUSD-crt",
+      "symbol": "ETH/USD",
       "source": "binance",
       "tf": "15m",
-      "indicator": "liq",
+      "indicator": "crt",
       "params": {
-        "sw": 1,
-        "age": 40,
-        "cfm": "Either",
-        "entM": "FVG or OB",
-        "obBody": false,
-        "strong": true,
-        "strongPct": 62,
-        "rr1": 1,
-        "rr2": 2,
-        "buf": 0.1,
-        "maxRisk": 3,
-        "trend": false,
-        "emaF": 20,
-        "emaS": 50,
-        "showZ": true,
-        "maxZ": 2,
-        "minZ": 0.15,
-        "showLq": true,
-        "showTL": true,
-        "showEP": true
+        "htfMin": 120,
+        "slMode": "raid",
+        "slBuf": 0.03,
+        "slPct": 0.15,
+        "tp1R": 1,
+        "minRR": 1,
+        "ext": 7,
+        "useSell": true,
+        "useBuy": true
       }
     }
   ]
