@@ -1,0 +1,121 @@
+{
+  "breakEvenAfterTP1": true,
+  "maxAgeCandles": 15,
+  "indicators": [
+    "liq",
+    "crt",
+    "crtkl"
+  ],
+  "watches": [
+    {
+      "name": "BTCUSDT-CRTKL",
+      "symbol": "BTC/USD",
+      "source": "binance",
+      "tf": "1m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 15,
+      "enabled": true,
+      "params": {}
+    },
+    {
+      "name": "ETHUSDT-CRTKL",
+      "symbol": "ETH/USD",
+      "source": "binance",
+      "tf": "1m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 15,
+      "enabled": true,
+      "params": {}
+    },
+    {
+      "name": "BNBUSDT-CRTKL",
+      "symbol": "BNB/USD",
+      "source": "binance",
+      "tf": "1m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 15,
+      "enabled": true,
+      "params": {}
+    },
+    {
+      "name": "SOLUSDT-CRTKL",
+      "symbol": "SOL/USD",
+      "source": "binance",
+      "tf": "1m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 15,
+      "enabled": true,
+      "params": {}
+    },
+    {
+      "name": "XRPUSDT-CRTKL",
+      "symbol": "XRP/USD",
+      "source": "binance",
+      "tf": "1m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 15,
+      "enabled": true,
+      "params": {}
+    },
+    {
+      "name": "ADAUSDT-CRTKL",
+      "symbol": "ADA/USD",
+      "source": "binance",
+      "tf": "1m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 15,
+      "enabled": true,
+      "params": {}
+    },
+    {
+      "name": "DOGEUSDT-CRTKL",
+      "symbol": "DOGE/USD",
+      "source": "binance",
+      "tf": "1m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 15,
+      "enabled": true,
+      "params": {}
+    },
+    {
+      "name": "AVAXUSDT-CRTKL",
+      "symbol": "AVAX/USD",
+      "source": "binance",
+      "tf": "1m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 15,
+      "enabled": true,
+      "params": {}
+    },
+    {
+      "name": "LINKUSDT-CRTKL",
+      "symbol": "LINK/USD",
+      "source": "binance",
+      "tf": "1m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 15,
+      "enabled": true,
+      "params": {}
+    },
+    {
+      "name": "DOTUSDT-CRTKL",
+      "symbol": "DOT/USD",
+      "source": "binance",
+      "tf": "1m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 15,
+      "enabled": true,
+      "params": {}
+    }
+  ]
+}
