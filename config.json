@@ -1,33 +1,361 @@
 {
   "breakEvenAfterTP1": true,
   "maxAgeCandles": 3,
+  "indicators": [
+    "liq",
+    "crt",
+    "crtkl"
+  ],
   "watches": [
     {
-      "name": "BTCUSD-crtkl",
+      "name": "BTCUSDT-CRT15m",
+      "symbol": "BTC/USD",
+      "source": "binance",
+      "tf": "1m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 15,
+      "enabled": true,
+      "params": {
+        "htfMin": 15
+      }
+    },
+    {
+      "name": "ETHUSDT-CRT15m",
+      "symbol": "ETH/USD",
+      "source": "binance",
+      "tf": "1m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 15,
+      "enabled": true,
+      "params": {
+        "htfMin": 15
+      }
+    },
+    {
+      "name": "BNBUSDT-CRT15m",
+      "symbol": "BNB/USD",
+      "source": "binance",
+      "tf": "1m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 15,
+      "enabled": true,
+      "params": {
+        "htfMin": 15
+      }
+    },
+    {
+      "name": "SOLUSDT-CRT15m",
+      "symbol": "SOL/USD",
+      "source": "binance",
+      "tf": "1m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 15,
+      "enabled": true,
+      "params": {
+        "htfMin": 15
+      }
+    },
+    {
+      "name": "XRPUSDT-CRT15m",
+      "symbol": "XRP/USD",
+      "source": "binance",
+      "tf": "1m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 15,
+      "enabled": true,
+      "params": {
+        "htfMin": 15
+      }
+    },
+    {
+      "name": "ADAUSDT-CRT15m",
+      "symbol": "ADA/USD",
+      "source": "binance",
+      "tf": "1m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 15,
+      "enabled": true,
+      "params": {
+        "htfMin": 15
+      }
+    },
+    {
+      "name": "DOGEUSDT-CRT15m",
+      "symbol": "DOGE/USD",
+      "source": "binance",
+      "tf": "1m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 15,
+      "enabled": true,
+      "params": {
+        "htfMin": 15
+      }
+    },
+    {
+      "name": "AVAXUSDT-CRT15m",
+      "symbol": "AVAX/USD",
+      "source": "binance",
+      "tf": "1m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 15,
+      "enabled": true,
+      "params": {
+        "htfMin": 15
+      }
+    },
+    {
+      "name": "LINKUSDT-CRT15m",
+      "symbol": "LINK/USD",
+      "source": "binance",
+      "tf": "1m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 15,
+      "enabled": true,
+      "params": {
+        "htfMin": 15
+      }
+    },
+    {
+      "name": "DOTUSDT-CRT15m",
+      "symbol": "DOT/USD",
+      "source": "binance",
+      "tf": "1m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 15,
+      "enabled": true,
+      "params": {
+        "htfMin": 15
+      }
+    },
+    {
+      "name": "BTCUSDT-CRT4H",
       "symbol": "BTC/USD",
       "source": "binance",
       "tf": "5m",
       "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 3,
+      "enabled": true,
       "params": {
-        "htfMin": 60,
-        "bodyPct": 60,
-        "dirMatch": true,
-        "needKey": true,
-        "kOHP": true,
-        "kOLP": true,
-        "kRB": true,
-        "kOB": true,
-        "kFVG": true,
-        "kIFVG": true,
-        "klLook": 60,
-        "kTol": 30,
-        "mss": 2,
-        "slBuf": 0.03,
-        "tp1R": 1,
-        "minRR": 2,
-        "ext": 7,
-        "useSell": true,
-        "useBuy": true
+        "htfMin": 240
+      }
+    },
+    {
+      "name": "ETHUSDT-CRT4H",
+      "symbol": "ETH/USD",
+      "source": "binance",
+      "tf": "5m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 3,
+      "enabled": true,
+      "params": {
+        "htfMin": 240
+      }
+    },
+    {
+      "name": "BNBUSDT-CRT4H",
+      "symbol": "BNB/USD",
+      "source": "binance",
+      "tf": "5m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 3,
+      "enabled": true,
+      "params": {
+        "htfMin": 240
+      }
+    },
+    {
+      "name": "SOLUSDT-CRT4H",
+      "symbol": "SOL/USD",
+      "source": "binance",
+      "tf": "5m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 3,
+      "enabled": true,
+      "params": {
+        "htfMin": 240
+      }
+    },
+    {
+      "name": "XRPUSDT-CRT4H",
+      "symbol": "XRP/USD",
+      "source": "binance",
+      "tf": "5m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 3,
+      "enabled": true,
+      "params": {
+        "htfMin": 240
+      }
+    },
+    {
+      "name": "ADAUSDT-CRT4H",
+      "symbol": "ADA/USD",
+      "source": "binance",
+      "tf": "5m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 3,
+      "enabled": true,
+      "params": {
+        "htfMin": 240
+      }
+    },
+    {
+      "name": "DOGEUSDT-CRT4H",
+      "symbol": "DOGE/USD",
+      "source": "binance",
+      "tf": "5m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 3,
+      "enabled": true,
+      "params": {
+        "htfMin": 240
+      }
+    },
+    {
+      "name": "AVAXUSDT-CRT4H",
+      "symbol": "AVAX/USD",
+      "source": "binance",
+      "tf": "5m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 3,
+      "enabled": true,
+      "params": {
+        "htfMin": 240
+      }
+    },
+    {
+      "name": "LINKUSDT-CRT4H",
+      "symbol": "LINK/USD",
+      "source": "binance",
+      "tf": "5m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 3,
+      "enabled": true,
+      "params": {
+        "htfMin": 240
+      }
+    },
+    {
+      "name": "DOTUSDT-CRT4H",
+      "symbol": "DOT/USD",
+      "source": "binance",
+      "tf": "5m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 3,
+      "enabled": true,
+      "params": {
+        "htfMin": 240
+      }
+    },
+    {
+      "name": "EURUSD-CRT15m",
+      "symbol": "EUR/USD",
+      "source": "twelvedata",
+      "tf": "1m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 15,
+      "enabled": true,
+      "params": {
+        "htfMin": 15
+      }
+    },
+    {
+      "name": "GBPUSD-CRT15m",
+      "symbol": "GBP/USD",
+      "source": "twelvedata",
+      "tf": "1m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 15,
+      "enabled": true,
+      "params": {
+        "htfMin": 15
+      }
+    },
+    {
+      "name": "USDJPY-CRT15m",
+      "symbol": "USD/JPY",
+      "source": "twelvedata",
+      "tf": "1m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 15,
+      "enabled": true,
+      "params": {
+        "htfMin": 15
+      }
+    },
+    {
+      "name": "AUDUSD-CRT15m",
+      "symbol": "AUD/USD",
+      "source": "twelvedata",
+      "tf": "1m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 15,
+      "enabled": true,
+      "params": {
+        "htfMin": 15
+      }
+    },
+    {
+      "name": "USDCAD-CRT15m",
+      "symbol": "USD/CAD",
+      "source": "twelvedata",
+      "tf": "1m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 15,
+      "enabled": true,
+      "params": {
+        "htfMin": 15
+      }
+    },
+    {
+      "name": "USDCHF-CRT15m",
+      "symbol": "USD/CHF",
+      "source": "twelvedata",
+      "tf": "1m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 15,
+      "enabled": true,
+      "params": {
+        "htfMin": 15
+      }
+    },
+    {
+      "name": "XAUUSD-CRT15m",
+      "symbol": "XAU/USD",
+      "source": "twelvedata",
+      "tf": "1m",
+      "indicator": "crtkl",
+      "limit": 1000,
+      "maxAgeCandles": 15,
+      "enabled": true,
+      "params": {
+        "htfMin": 15
       }
     }
   ]

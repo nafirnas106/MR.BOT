@@ -46,6 +46,7 @@ function crtkl(d,p){
    if(isL)pl.push({i:m,v:d[m].low});if(isH)ph.push({i:m,v:d[m].high})}
   if(j!=cur){cur=j;st={i0:H[j].i0,hi:-Infinity,lo:Infinity,hiI:-1,loI:-1,done:false,ref:null,Z:[]};
    const r=j>0?H[j-1]:null;
+   st.pr=r&&r.cnt>=need?Math.abs(r.c-r.o)/((r.h-r.l)||1)*100:null;
    if(r&&r.cnt>=need){const rng=r.h-r.l,body=Math.abs(r.c-r.o);
     if(rng>0&&body>=p.bodyPct/100*rng){st.ref=r;st.bull=r.c>r.o;st.Z=j>=3?zones(H,j,p):[]}}}
   if(c.high>st.hi){st.hi=c.high;st.hiI=i}
@@ -78,7 +79,13 @@ function crtkl(d,p){
    {t:'B',i1:s.i,i2:e,y1:s.entry,y2:m.tp,c:'rgba(240,160,185,.28)',x:'TP '+fmt(m.tp)+' ('+tpp.toFixed(2)+'%)'},
    {t:'B',i1:s.i,i2:e,y1:s.entry,y2:s.sl,c:'rgba(110,160,125,.30)',x:'SL '+fmt(s.sl)+' ('+(Math.abs(s.sl-s.entry)/s.entry*100).toFixed(2)+'%)'},
    {t:'T',i:e,y:s.entry,x:(b?'LONG':'SHORT')+' R:R 1:'+m.rr.toFixed(1),c:'fg',dx:4})});
- return{lines:[],sigs:S,marks:M}}
+ let note='';
+ if(st){const u=lab+' CRT';
+  if(st.pr==null)note=u+': not enough candles for the previous '+lab+' candle';
+  else if(!st.ref)note=u+': previous candle body is only '+st.pr.toFixed(0)+'% (need '+p.bodyPct+'%), waiting for a stronger CRT candle';
+  else{const rU=st.hi>st.ref.h,rD=st.lo<st.ref.l;
+   note=u+' ready ('+(st.bull?'bullish':'bearish')+' candle, body '+st.pr.toFixed(0)+'%) | CRTH '+fmt(st.ref.h)+' CRTL '+fmt(st.ref.l)+' | raid: '+(rU&&rD?'both sides, ignored':rU?'high':rD?'low':'not yet')+' | key levels: '+st.Z.length+(st.done?' | signal taken':'')}}
+ return{lines:[],sigs:S,marks:M,note}}
 const KC={OHP:'rgba(150,110,120,.20)',OLP:'rgba(150,110,120,.20)',OB:'rgba(130,185,140,.32)',FVG:'rgba(110,200,215,.30)',IFVG:'rgba(250,190,120,.30)',RB:'rgba(150,190,240,.28)'};
 const CRTKL={id:'crtkl',name:'CRT + Key Level + MSS',calc:crtkl,params:[['htfMin','High timeframe (minutes: 15, 60, 120...)',15],['bodyPct','CRT candle: minimum body % of its range',60],['dirMatch','CRT candle colour must match the raid side',true],['needKey','Require a key level at the raid',true],['kOHP','Key level: OHP (old high purge)',true],['kOLP','Key level: OLP (old low purge)',true],['kRB','Key level: RB (rejection block)',true],['kOB','Key level: OB (order block)',true],['kFVG','Key level: FVG',true],['kIFVG','Key level: IFVG',true],['klLook','Key level look-back (HTF candles)',30],['kTol','Raid may go beyond the key level by (% of CRT range)',30],['mss','MSS swing strength (bars)',2],['slBuf','SL buffer beyond the raid extreme (%)',0.03],['tp1R','TP1 in R (0 = no TP1)',1],['minRR','Minimum RR to the target',1],['ext','Line extension (bars)',7],['useSell','Enable SELL',true],['useBuy','Enable BUY',true]]};
 module.exports={CRTKL};
