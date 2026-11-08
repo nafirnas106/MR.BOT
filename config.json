@@ -3,8 +3,8 @@
   "maxAgeCandles": 3,
   "watches": [
     {
-      "name": "BNBUSD-crtkl",
-      "symbol": "BNB/USD",
+      "name": "BTCUSD-crtkl",
+      "symbol": "BTC/USD",
       "source": "binance",
       "tf": "5m",
       "indicator": "crtkl",
