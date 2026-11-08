@@ -10,7 +10,7 @@
       "indicator": "crt",
       "params": {
         "htfMin": 240,
-        "slMode": "pct",
+        "slMode": "raid",
         "slBuf": 0.03,
         "slPct": 0.15,
         "tp1R": 1,
