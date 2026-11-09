@@ -46,7 +46,7 @@ th{color:var(--mut);font-weight:600}
 <div class="w">
 <h1>Indicators App <span id="role" hidden>Admin</span></h1>
 <div class="bar">
-<select id="sym" aria-label="Symbol"></select><select id="tf" aria-label="Timeframe"><option value="0">M1</option><option value="1">M5</option><option value="2">M15</option><option value="3">M30</option><option value="4">H1</option><option value="5">H4</option></select><select id="src" aria-label="Data source"><option value="demo">Simulated data</option><option value="live">Live market</option><option value="csv">My data (CSV)</option></select>
+<select id="sym" aria-label="Symbol"></select><select id="tf" aria-label="Timeframe"><option value="0">M1</option><option value="1">M5</option><option value="2">M15</option><option value="3">M30</option><option value="4">H1</option><option value="5">H4</option><option value="6">D1</option></select><select id="src" aria-label="Data source"><option value="demo">Simulated data</option><option value="live">Live market</option><option value="csv">My data (CSV)</option></select>
 <button id="live">Simulate candles (demo data only)</button><button id="snd" class="on">Sound on</button><button id="be" class="on">Break-even after TP1: on</button><button id="cpb">Copy bot settings</button>
 </div>
 <div class="bar" id="params"></div>
@@ -128,8 +128,9 @@ function klZones(H,j,p){
  return Z}
 const KLP={klLook:30,kOHP:1,kOLP:1,kRB:1,kOB:1,kFVG:1,kIFVG:1,kBB:1};
 function klPick(H,j,ref,b,ex){if(j<3)return null;const rng=ref.h-ref.l;let kz=null;
- for(const z of klZones(H,j,KLP)){if(b){if(z.kind=='B'&&z.bot<=ref.l+.1*rng&&ex<=z.top&&ex>=z.bot-.3*rng&&(!kz||z.top>kz.top))kz=z}
-  else if(z.kind=='S'&&z.top>=ref.h-.1*rng&&ex>=z.bot&&ex<=z.top+.3*rng&&(!kz||z.bot<kz.bot))kz=z}
+ for(const z of klZones(H,j,KLP)){const sl=z.top==z.bot?.3*rng:.1*(z.top-z.bot);
+  if(b){if(z.kind=='B'&&z.bot<=ref.l+.1*rng&&ex<=z.top&&ex>=z.bot-sl&&(!kz||z.top>kz.top))kz=z}
+  else if(z.kind=='S'&&z.top>=ref.h-.1*rng&&ex>=z.bot&&ex<=z.top+sl&&(!kz||z.bot<kz.bot))kz=z}
  return kz}
 function crtCalc(d,p){
  const n=d.length,S=[],M=[],bs=n>1?d[1].time-d[0].time:300,hs=p.htfMin*60;
@@ -158,13 +159,14 @@ function crtCalc(d,p){
   if(!side)continue;
   const b=side=='BUY',rr=(b?tp-en:en-tp)/Math.abs(en-sl);
   if(!(rr>0)||rr<p.minRR)continue;
+  const kz=klPick(H,j,ref,b,b?st.lo:st.hi);if(p.needKey!==false&&!kz)continue;
   const rm=(b?(ref.h+ref.l)/2-en:en-(ref.h+ref.l)/2)/Math.abs(en-sl),s=mk(d,i,side,en,sl,p.tp1M=='mid'&&rm>0?Math.min(rm,rr):p.tp1R>0?Math.min(p.tp1R,rr):rr,rr);
   s.st='OPEN';s.txt=(b?'BUY':'SELL')+' | '+lab+' CRT + CISD';
   s.why='Reason: '+lab+' CRT. Price raided the previous '+lab+' candle '+(b?'low':'high')+' and came back inside, then CISD confirmed on '+bs/60+'m. Target: '+lab+' '+(b?'CRH':'CRL')+'.';
-  s.meta={ref,lv,tp,rr,cs:H[j].i0,bars:Math.round(hs/bs),kz:klPick(H,j,ref,b,b?st.lo:st.hi)};st.done=true;live.push(s);S.push(s)}
+  s.meta={ref,lv,tp,rr,cs:H[j].i0,bars:Math.round(hs/bs),kz,soup:(()=>{for(let q=H[j].i0;q<=i;q++)if(b?d[q].close<ref.l:d[q].close>ref.h)return'TBS';return'TWS'})()};st.done=true;live.push(s);S.push(s)}
 
  return{lines:[],sigs:S,marks:M}}
-const CRT={id:'crt',name:'CRT: Range, Raid, Run (CISD)',calc:crtCalc,params:[['htfMin','High timeframe (minutes: 60, 120, 180, 240...)',180],['off','Candle alignment offset in hours (2 = broker day starts 22:00 UTC)',2],['slMode','Stop loss: raid = beyond the raid extreme, pct = % of entry','raid',['raid','pct']],['slBuf','SL buffer beyond the raid extreme (%)',0.03],['slPct','SL % of entry (only if mode = pct)',0.15],['tp1M','TP1 target: mid = 50% of the CRT range, R = fixed R','mid',['mid','R']],['tp1R','TP1 in R (when TP1 target = R)',1],['minRR','Minimum RR to the target',1],['ext','Line extension (bars)',7],['useSell','Enable SELL',true],['useBuy','Enable BUY',true]]};
+const CRT={id:'crt',name:'CRT: Range, Raid, Run (CISD)',calc:crtCalc,params:[['htfMin','High timeframe in minutes (60 = 1H, 120 = 2H, 240 = 4H, 1440 = 1D)',180],['needKey','Take a trade only when the raid touched a key level',true],['off','Candle alignment offset in hours (2 = broker day starts 22:00 UTC)',2],['slMode','Stop loss: raid = beyond the raid extreme, pct = % of entry','raid',['raid','pct']],['slBuf','SL buffer beyond the raid extreme (%)',0.03],['slPct','SL % of entry (only if mode = pct)',0.15],['tp1M','TP1 target: mid = 50% of the CRT range, R = fixed R','mid',['mid','R']],['tp1R','TP1 in R (when TP1 target = R)',1],['minRR','Minimum RR to the target',1],['ext','Line extension (bars)',7],['useSell','Enable SELL',true],['useBuy','Enable BUY',true]]};
 
 let D=[],CSVD=[],chart,cs,ls=[],pl=[],P={},ALL=[CRT],CUST=[],cur={id:null},savedId,col=null,alerted=new Set(),timer=null,snd=true,ac;
 const f=v=>v.toFixed(v>=100?2:v>=1?4:v>=.01?6:8),cv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
@@ -175,7 +177,7 @@ function nx(c,t){const v=SYMS[SYM][2]*Math.sqrt(TFS[TFI]/900),dp=c>=100?2:c>=1?4
 function demo(){const st=TFS[TFI];let t=Math.floor(Date.now()/1000/st)*st-400*st,c=SYMS[SYM][1];D=[];for(let i=0;i<400;i++){const x=nx(c,t+i*st);D.push(x);c=x.close}}
 function parse(t){const o=[];t.split(/\r?\n/).forEach(l=>{const a=l.split(/[,;\t]/).map(s=>s.trim());if(a.length<5)return;let T=+a[0];if(!T||isNaN(T))T=Date.parse(a[0])/1000;else if(T>1e12)T/=1000;const[open,high,low,close]=a.slice(1,5).map(Number);if(T&&[open,high,low,close].every(isFinite))o.push({time:Math.floor(T),open,high,low,close})});o.sort((a,b)=>a.time-b.time);return o.filter((x,i)=>!i||x.time>o[i-1].time)}
 function theme(){chart.applyOptions({layout:{background:{color:'#f5f5f5'},textColor:'#6b6b70',fontSize:11},grid:{vertLines:{visible:false},horzLines:{visible:false}},rightPriceScale:{borderVisible:false},timeScale:{borderVisible:false},
- watermark:{visible:true,text:SYMS[SYM][0].replace('/','')+', '+[1,5,15,30,60,240][TFI],fontSize:60,horzAlign:'left',vertAlign:'center',color:'rgba(20,20,30,.07)'}});
+ watermark:{visible:true,text:SYMS[SYM][0].replace('/','')+', '+[1,5,15,30,60,240,'D'][TFI],fontSize:60,horzAlign:'left',vertAlign:'center',color:'rgba(20,20,30,.07)'}});
  cs.applyOptions({upColor:'#f0f0f0',downColor:'#5f5f63',borderVisible:true,borderUpColor:'#7a7a7e',borderDownColor:'#5f5f63',wickUpColor:'#7a7a7e',wickDownColor:'#5f5f63',priceLineColor:'#858487',priceLineStyle:3})}
 function fire(s,si,d,tg){si=si==null?SYM:si;d=d||D;const m=`${SYMS[si][0]} ${cur.name}: ${s.side} @ ${f(s.entry)} | SL ${f(s.sl)} | TP1 ${f(s.tp1)} | TP2 ${f(s.tp2)}`;
  const t=$('toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',5000);
@@ -257,7 +259,7 @@ async function bootAcc(){
  const keepLast=()=>{try{if(ACC.length>1&&localStorage.getItem('ih_clean1')!=='1'){ACC=ACC.slice(-1);localStorage.setItem('ih_clean1','1');persist();accSig=''}}catch(e){}};keepLast();drawAcc();
  }
 const SYMS=[['BTC/USD',65000,.004,'Crypto'],['ETH/USD',3200,.005,'Crypto'],['BNB/USD',600,.005,'Crypto'],['SOL/USD',150,.007,'Crypto'],['XRP/USD',.6,.006,'Crypto'],['ADA/USD',.45,.007,'Crypto'],['DOGE/USD',.15,.009,'Crypto'],['TRX/USD',.12,.005,'Crypto'],['AVAX/USD',35,.008,'Crypto'],['LINK/USD',15,.008,'Crypto'],['DOT/USD',7,.008,'Crypto'],['LTC/USD',80,.006,'Crypto'],['BCH/USD',400,.007,'Crypto'],['SHIB/USD',.000025,.01,'Crypto'],['TON/USD',6,.008,'Crypto'],['NEAR/USD',5,.009,'Crypto'],['ATOM/USD',8,.008,'Crypto'],['UNI/USD',9,.009,'Crypto'],['APT/USD',9,.009,'Crypto'],['ARB/USD',1,.01,'Crypto'],['OP/USD',2,.01,'Crypto'],['SUI/USD',2,.01,'Crypto'],['INJ/USD',25,.01,'Crypto'],['FIL/USD',5,.009,'Crypto'],['ETC/USD',25,.008,'Crypto'],['XLM/USD',.11,.008,'Crypto'],['PEPE/USD',.00001,.013,'Crypto'],['HBAR/USD',.07,.009,'Crypto'],['AAVE/USD',160,.008,'Crypto'],['POL/USD',.2,.008,'Crypto'],['EUR/USD',1.08,.0007,'Forex'],['GBP/USD',1.27,.0008,'Forex'],['USD/JPY',150,.0008,'Forex'],['AUD/USD',.66,.0008,'Forex'],['USD/CAD',1.36,.0007,'Forex'],['USD/CHF',.9,.0007,'Forex'],['NZD/USD',.6,.0008,'Forex'],['EUR/GBP',.85,.0006,'Forex'],['EUR/JPY',162,.0009,'Forex'],['GBP/JPY',190,.001,'Forex'],['XAU/USD',4000,.0018,'Forex'],['XAG/USD',28,.003,'Forex']];
-const TFS=[60,300,900,1800,3600,14400];let BE=(()=>{try{return localStorage.getItem('ih_be')!=='0'}catch(e){return true}})();let SESS=Date.now().toString(36),RDY=true,UIS='demo';let SYM=SYMS.findIndex(s=>s[0]=='XAU/USD'),TFI=1,OV,ovx,RX=null,ovD=1,ovSig='';
+const TFS=[60,300,900,1800,3600,14400,86400];let BE=(()=>{try{return localStorage.getItem('ih_be')!=='0'}catch(e){return true}})();let SESS=Date.now().toString(36),RDY=true,UIS='demo';let SYM=SYMS.findIndex(s=>s[0]=='XAU/USD'),TFI=1,OV,ovx,RX=null,ovD=1,ovSig='';
 function extra(d,p,A){const n=d.length,sw=Math.max(2,p.sw|0),o={Z:[],Q:[],TL:[]},Hs=[],Ls=[];
  for(let i=2*sw;i<n;i++){const m=i-sw;let ph=1,pl=1;for(let q=m-sw;q<=i;q++){if(q==m)continue;if(q<m?d[q].high>d[m].high:d[q].high>=d[m].high)ph=0;if(q<m?d[q].low<d[m].low:d[q].low<=d[m].low)pl=0}
   if(ph)Hs.push({i:m,v:d[m].high});if(pl)Ls.push({i:m,v:d[m].low})}
@@ -272,7 +274,7 @@ function extra(d,p,A){const n=d.length,sw=Math.max(2,p.sw|0),o={Z:[],Q:[],TL:[]}
    if(p1.close>p1.open&&c.close<c.open&&c.close<p1.low&&vt-vb<=mx&&vt-vb>=mn)zs.push({k:'OB',d:-1,i:i-1,t:vt,b:vb,c:i})}
   ['FVG','OB'].forEach(k=>zs.filter(z=>z.k==k).slice(-4).forEach(z=>{for(let j=z.c+1;j<n;j++)if(z.d>0?d[j].close<z.b:d[j].close>z.t)return;o.Z.push(z)}))}
  return o}
-const C={tl:'#0e8f7e',rd:'#e5384f',cy:'#18b4c8',in:'#2a1f8f',or:'#ec6e00',gy:'#7b7e85',gn:'#2f9e44'},TFN=['M1','M5','M15','M30','H1','H4'];
+const C={tl:'#0e8f7e',rd:'#e5384f',cy:'#18b4c8',in:'#2a1f8f',or:'#ec6e00',gy:'#7b7e85',gn:'#2f9e44'},TFN=['M1','M5','M15','M30','H1','H4','D1'];
 const pipSz=(si=SYM)=>{const n=SYMS[si][0];return n.startsWith('XAU')?.1:n.startsWith('XAG')?.01:n.includes('JPY')?.01:SYMS[si][3]=='Forex'?.0001:1};
 function hdrUpd(L){try{hpDraw(L)}catch(e){}const S=SYMS[SYM],hl=crtHl((P.crt||{}).htfMin||180),pz=pipSz(),u=S[3]=='Crypto'?'POINTS':'PIPS',h2=$('h2'),
  U=(d,o)=>d.toLocaleString('en-GB',{...o,timeZone:'UTC'}).toUpperCase().replace(/,/g,''),lt=D.length?new Date(D[D.length-1].time*1000):null;
@@ -318,9 +320,9 @@ function whyMsg(s,si,d){si=si==null?SYM:si;const m=s.meta||{},b=s.side=='BUY',la
  return '📌 <b>ஏன் இந்த ட்ரேட்?</b> ('+SYMS[si][0].replace('/','')+' '+s.side+')\n\n'
  +'1️⃣ '+lab+' CRT கேண்டில் வரம்பு அமைத்தது: உயர்வு '+f(r.h)+', தாழ்வு '+f(r.l)+'.\n'
  +'2️⃣ அடுத்த '+lab+' கேண்டில் வரம்பின் '+(b?'தாழ்வை':'உயர்வை')+' உடைத்து (sweep) liquidity எடுத்தது.\n'
- +'3️⃣ விலை மீண்டும் வரம்புக்குள் திரும்பி '+TFN[TFI]+'-ல் CISD உறுதியானது → '+(b?'வாங்கலாம் (BUY)':'விற்கலாம் (SELL)')+'.\n'
+ +'🐢 '+(m.soup=='TBS'?'TBS (Turtle Body Soup): கேண்டில் body வரம்புக்கு வெளியே மூடியது, பின் உள்ளே திரும்பியது.':'TWS (Turtle Wick Soup): திரி (wick) மட்டும் வரம்பை உடைத்தது, body வெளியே மூடவில்லை.')+'\n'+'3️⃣ விலை மீண்டும் வரம்புக்குள் திரும்பி '+TFN[TFI]+'-ல் CISD உறுதியானது → '+(b?'வாங்கலாம் (BUY)':'விற்கலாம் (SELL)')+'.\n'
  +'🎯 இலக்கு: '+lab+' CRT '+(b?'உயர்வு':'தாழ்வு')+' '+f(s.tp2)+'.\n'
- +(k?'🔑 Key level: '+KLT[k.t]+' ('+(k.bot==k.top?f(k.bot):f(k.bot)+' – '+f(k.top))+'). Sweep இந்த இடத்தில் நடந்ததால் ட்ரேட்டுக்கு கூடுதல் உறுதி.':'🔑 Key level: எதுவும் இல்லை, CRT விதிகள் மட்டும் பூர்த்தியானது.')}
+ +(k?'🔑 Key level: '+KLT[k.t]+' ('+(k.bot==k.top?f(k.bot):f(k.bot)+' – '+f(k.top))+'). Sweep இந்த key level-ஐ தொட்டதால் ட்ரேட் எடுக்கப்பட்டது.':'🔑 Key level: எதுவும் இல்லை, CRT விதிகள் மட்டும் பூர்த்தியானது.')}
 function focusView(L){const n=D.length;if(!n)return;let from=n-120;if(L&&L.meta)from=Math.min(L.meta.ref.i0-6,n-90);
  chart.timeScale().setVisibleLogicalRange({from:Math.max(-3,from,n-420),to:n+16})}
 function initOv(){OV=document.createElement('canvas');OV.id='ov';$('chart').append(OV);ovx=OV.getContext('2d');
@@ -349,7 +351,7 @@ function paintOv(){const w=$('chart').clientWidth,h=$('chart').clientHeight,dpr=
   if(m.kz){const k=m.kz,xk=X(k.i),ya=Y(k.top),yb=Y(k.bot);if(xk!=null&&ya!=null&&yb!=null){ln(xk,xe,ya,'#333',1.2);if(k.top!=k.bot)ln(xk,xe,yb,'#333',1.2);tx(k.t,Math.max(xk,4)+4,ya-9,'#222','left')}}
   let xi=s.i,ex=b?Infinity:-Infinity;for(let j=m.cs;j<=s.i;j++){if(b?D[j].low<ex:D[j].high>ex){ex=b?D[j].low:D[j].high;xi=j}}
   const sx=X(xi),sy=Y(ex);if(sx!=null&&sy!=null){const q=b?1:-1;c.strokeStyle=c.fillStyle=C.or;c.lineWidth=1.3;c.beginPath();c.moveTo(sx-38,sy+q*20);c.lineTo(sx-4,sy+q*5);c.stroke();
-   c.beginPath();c.moveTo(sx-2,sy+q*3);c.lineTo(sx-10,sy+q*4);c.lineTo(sx-5,sy+q*10);c.fill();tx('SWEEP',sx-42,sy+q*22,C.or,'right')}
+   c.beginPath();c.moveTo(sx-2,sy+q*3);c.lineTo(sx-10,sy+q*4);c.lineTo(sx-5,sy+q*10);c.fill();tx('SWEEP · '+(m.soup||'TWS'),sx-42,sy+q*22,C.or,'right')}
   const yc=Y(b?D[s.i].low:D[s.i].high);if(yc!=null)pill((b?'BUY ':'SELL ')+hl,xs,yc,b?C.tl:C.rd,!b);
   if(s.t1i!=null){const a=X(s.t1i);if(a!=null){ck(a,y1);tx('+'+pt(s.tp1),a,y1-15,C.gn,'center')}}
   if(s.st=='TP2'){const a=X(s.ei);if(a!=null){ck(a,y2);tx('+'+pt(s.tp2),a-9,y2+14,C.gn,'right')}}
@@ -367,12 +369,12 @@ function histHtml(S){const now=D[D.length-1].time,d0=new Date(now*1000);d0.setHo
   return `<tr><td>${nm}</td><td>${n}</td><td class="up">${a}${pc(a)}</td><td class="up">${b}${pc(b)}</td><td class="dn">${l}${pc(l)}</td><td>${be}</td><td class="${net>=0?'up':'dn'}">${net.toFixed(1)}</td></tr>`}).join('');
  return '<tr><th>Period</th><th>Trades</th><th>TP1 hit</th><th>TP2 hit</th><th>SL hit</th><th>BE / stopped after TP1</th><th>Net R</th></tr>'+rows}
 let ws=null,poll=null,FC=null,liveTok=0;
-const BI=['1m','5m','15m','30m','1h','4h'],TI=['1min','5min','15min','30min','1h','4h'];
+const BI=['1m','5m','15m','30m','1h','4h','1d'],TI=['1min','5min','15min','30min','1h','4h','1day'];
 function stopLive(){liveTok++;if(ws){try{ws.onclose=null;ws.close()}catch(e){}ws=null}clearInterval(poll);poll=null;FC=null}
 async function startLive(){RDY=false;stopLive();const tok=liveTok,S=SYMS[SYM],note=$('srcnote');note.style.color='';note.textContent='Connecting to '+S[0]+'...';
  try{
   if(S[3]=='Crypto'){const sym=S[0].split('/')[0]+'USDT',iv=BI[TFI];
-   const r=await fetch('https://data-api.binance.vision/api/v3/klines?symbol='+sym+'&interval='+iv+'&limit=500'),a=await r.json();if(tok!=liveTok)return;
+   const r=await fetch('https://data-api.binance.vision/api/v3/klines?symbol='+sym+'&interval='+iv+'&limit=1000'),a=await r.json();if(tok!=liveTok)return;
    if(!Array.isArray(a))throw new Error(a.msg||'No data for '+sym);
    const k=a.map(x=>({time:Math.floor(x[0]/1000),open:+x[1],high:+x[2],low:+x[3],close:+x[4]}));FC=k.pop();D=k;render(true);RDY=true;paper();
    let fails=0;
@@ -390,7 +392,7 @@ async function startLive(){RDY=false;stopLive();const tok=liveTok,S=SYMS[SYM],no
   }else{
    let key='';try{key=localStorage.getItem('ih_td')||''}catch(e){}
    if(!key)throw new Error('Paste your free Twelve Data API key in the box below the chart, then press Save key');
-   const pull=async()=>{const r=await fetch('https://api.twelvedata.com/time_series?symbol='+encodeURIComponent(S[0])+'&interval='+TI[TFI]+'&outputsize=400&timezone=UTC&apikey='+key),j=await r.json();if(tok!=liveTok)return;
+   const pull=async()=>{const r=await fetch('https://api.twelvedata.com/time_series?symbol='+encodeURIComponent(S[0])+'&interval='+TI[TFI]+'&outputsize=1500&timezone=UTC&apikey='+key),j=await r.json();if(tok!=liveTok)return;
     if(j.status=='error'||!j.values)throw new Error(j.message||'No data');
     const k=j.values.slice().reverse().map(x=>({time:Math.floor(Date.parse(x.datetime.replace(' ','T')+'Z')/1000),open:+x.open,high:+x.high,low:+x.low,close:+x.close}));
     FC=k.pop();const first=!D.length||D[0].time!=k[0].time;D=k;render(first);RDY=true;paper();
@@ -454,10 +456,10 @@ try{JSON.parse(localStorage.getItem('ih_log')||'[]').forEach(x=>{$('log').queryS
 const WL=[0,1,2,3,4,5,6,7,8,9,40,30,31,32,33,34,35,36,38,39],WLS={};let wlOn=1,wlBusy=0,wlLastF=0;
 try{wlOn=localStorage.getItem('ih_wl')!=='0'}catch(e){}
 async function wlCandles(i){const S=SYMS[i];let k;
- if(S[3]=='Crypto'){const r=await fetch('https://data-api.binance.vision/api/v3/klines?symbol='+S[0].split('/')[0]+'USDT&interval='+BI[TFI]+'&limit=500'),a=await r.json();if(!Array.isArray(a))throw new Error(a.msg||'no data');
+ if(S[3]=='Crypto'){const r=await fetch('https://data-api.binance.vision/api/v3/klines?symbol='+S[0].split('/')[0]+'USDT&interval='+BI[TFI]+'&limit=1000'),a=await r.json();if(!Array.isArray(a))throw new Error(a.msg||'no data');
   k=a.map(x=>({time:Math.floor(x[0]/1000),open:+x[1],high:+x[2],low:+x[3],close:+x[4]}))}
  else{let key='';try{key=localStorage.getItem('ih_td')||''}catch(e){}if(!key)throw new Error('Twelve Data key needed');
-  const r=await fetch('https://api.twelvedata.com/time_series?symbol='+encodeURIComponent(S[0])+'&interval='+TI[TFI]+'&outputsize=500&timezone=UTC&apikey='+key),j=await r.json();if(j.status=='error'||!j.values)throw new Error(j.message||'no data');
+  const r=await fetch('https://api.twelvedata.com/time_series?symbol='+encodeURIComponent(S[0])+'&interval='+TI[TFI]+'&outputsize=1500&timezone=UTC&apikey='+key),j=await r.json();if(j.status=='error'||!j.values)throw new Error(j.message||'no data');
   k=j.values.slice().reverse().map(x=>({time:Math.floor(Date.parse(x.datetime.replace(' ','T')+'Z')/1000),open:+x.open,high:+x.high,low:+x.low,close:+x.close}))}
  k.pop();return k}
 async function wlScan(i){const w=WLS[i]=WLS[i]||{};w.at=Date.now();w.tf=TFI;
@@ -487,4 +489,4 @@ $('ghc').onclick=async()=>{const repo=$('ghr').value.trim(),tok=$('ght').value.t
  try{const a=await fetch('https://api.github.com/repos/'+repo+'/contents/config.json',{headers:h}),r=await fetch('https://api.github.com/repos/'+repo+'/actions/runs?per_page=1',{headers:h}),run=r.ok?(await r.json()).workflow_runs[0]:null;
   m.textContent='Repository: '+(a.ok?'config.json found':a.status==404?'reachable, config.json missing (press Send settings)':'error '+a.status)+'. Bot run: '+(run?run.name+' · '+(run.conclusion||run.status)+' · '+tm(Date.parse(run.updated_at)/1000):'no runs found')}
  catch(e){m.textContent='Could not check: '+e.message}};
-</script><div style="position:fixed;bottom:3px;right:8px;font:10px system-ui,sans-serif;opacity:.55;pointer-events:none;z-index:9">v8-CRT</div></body></html>
+</script><div style="position:fixed;bottom:3px;right:8px;font:10px system-ui,sans-serif;opacity:.55;pointer-events:none;z-index:9">v9-CRT</div></body></html>
