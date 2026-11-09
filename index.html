@@ -41,6 +41,7 @@ th{color:var(--mut);font-weight:600}
 .pl.b{background:#0e8f7e;border-color:#0e8f7e;color:#fff}.pl.s{background:#e5384f;border-color:#e5384f;color:#fff}
 .pl.ok{background:#dcf5ea;border-color:#dcf5ea;color:#0e8f4e}.pl.no{background:#fde4e7;border-color:#fde4e7;color:#c62c43}.pl.op{background:#fff1dc;border-color:#fff1dc;color:#b45309}
 #ft{font-size:12px;color:var(--mut);margin:8px 2px}#ft b{color:var(--ac)}
+#cw{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start}#cw #chart{flex:2 1 320px;min-width:0}#hpw{flex:1 1 260px;min-width:0;border:1px solid var(--bd);border-radius:10px;overflow:hidden;background:#fff}#hp{display:block}
 </style></head><body>
 <div class="w">
 <h1>Indicators App <span id="role" hidden>Admin</span></h1>
@@ -59,7 +60,7 @@ th{color:var(--mut);font-weight:600}
 <p class="note" id="srcnote">Choose "Live market" for real prices. Crypto uses Binance public data. Forex and gold need a free Twelve Data API key.</p>
 <div class="bar"><label>Twelve Data API key (forex and gold only)<input type="text" id="tdk" placeholder="paste your key here" style="width:260px"></label><button id="tds">Save key</button></div>
 <div id="hdr"><div id="h1"></div><div id="h2" class="z"></div><div id="h3"></div></div>
-<div id="chart"></div>
+<div id="cw"><div id="chart"></div><div id="hpw"><canvas id="hp"></canvas></div></div>
 <div id="ft"></div>
 <div id="csvbox" hidden>
 <textarea id="csv" placeholder="time,open,high,low,close&#10;2026-10-21 09:15,100,101,99.5,100.8"></textarea>
@@ -97,6 +98,39 @@ const H={ema,rsi,atr,mk,step};
 // CRT (Candle Range Theory: Range, Raid, Run). Uses the mk/step helpers above.
 const crtFmt=v=>v.toFixed(v>=100?2:v>=1?4:6);
 const crtHl=m=>m>=1440?'D':m%60==0?(m/60)+'H':m+'m';
+function klZones(H,j,p){
+ const Z=[],a=Math.max(2,j-1-p.klLook),b=j-2;   // candles a..b are older than the CRT candle (j-1)
+ const up=k=>H[k].c>H[k].o,dn=k=>H[k].c<H[k].o;
+ const open=(z,from)=>{for(let q=from;q<=j-1;q++){if(z.kind=='S'&&H[q].c>z.top)return false;if(z.kind=='B'&&H[q].c<z.bot)return false}return true};
+ for(let k=a;k<=b;k++){const c=H[k],r=c.h-c.l||1e-9;
+  if(p.kOHP&&k>a&&k<b&&c.h>H[k-1].h&&c.h>=H[k+1].h){let ok=true;for(let q=k+1;q<=j-1;q++)if(H[q].h>c.h)ok=false;if(ok)Z.push({t:'OHP',kind:'S',bot:c.h,top:c.h,i:c.i0})}
+  if(p.kOLP&&k>a&&k<b&&c.l<H[k-1].l&&c.l<=H[k+1].l){let ok=true;for(let q=k+1;q<=j-1;q++)if(H[q].l<c.l)ok=false;if(ok)Z.push({t:'OLP',kind:'B',bot:c.l,top:c.l,i:c.i0})}
+  if(p.kRB){const uw=c.h-Math.max(c.o,c.c),lw=Math.min(c.o,c.c)-c.l,bd=Math.abs(c.c-c.o);
+   if(uw>=.5*r&&uw>bd){const z={t:'RB',kind:'S',bot:Math.max(c.o,c.c),top:c.h,i:c.i0};if(open(z,k+1))Z.push(z)}
+   if(lw>=.5*r&&lw>bd){const z={t:'RB',kind:'B',bot:c.l,top:Math.min(c.o,c.c),i:c.i0};if(open(z,k+1))Z.push(z)}}
+  if(p.kOB&&k<b){const n=H[k+1];   // OB: last candle before an impulse that closes beyond it
+   if(up(k)&&dn(k+1)&&n.c<c.l){const z={t:'OB',kind:'S',bot:c.l,top:c.h,i:c.i0};if(open(z,k+2))Z.push(z)}
+   if(dn(k)&&up(k+1)&&n.c>c.h){const z={t:'OB',kind:'B',bot:c.l,top:c.h,i:c.i0};if(open(z,k+2))Z.push(z)}}
+  if(p.kBB&&k<b){const n=H[k+1];   // BB: an order block that failed and now works the other way
+   if(dn(k)&&up(k+1)&&n.c>c.h){let br=-1;for(let q=k+2;q<=j-1;q++)if(H[q].c<c.l){br=q;break}
+    if(br>=0){let ok=true;for(let q=br;q<=j-1;q++)if(H[q].c>c.h)ok=false;if(ok)Z.push({t:'BB',kind:'S',bot:c.l,top:c.h,i:c.i0})}}
+   if(up(k)&&dn(k+1)&&n.c<c.l){let br=-1;for(let q=k+2;q<=j-1;q++)if(H[q].c>c.h){br=q;break}
+    if(br>=0){let ok=true;for(let q=br;q<=j-1;q++)if(H[q].c<c.l)ok=false;if(ok)Z.push({t:'BB',kind:'B',bot:c.l,top:c.h,i:c.i0})}}}
+  if((p.kFVG||p.kIFVG)&&k>=a+2){const x=H[k-2],g=H[k];
+   if(g.l>x.h){const bot=x.h,top=g.l;   // bullish gap
+    let inv=false;for(let q=k+1;q<=j-1;q++)if(H[q].c<bot)inv=true;
+    if(inv){if(p.kIFVG){const z={t:'IFVG',kind:'S',bot,top,i:x.i0};let ok=true;for(let q=k+1;q<=j-1;q++)if(H[q].c>top)ok=false;if(ok)Z.push(z)}}
+    else if(p.kFVG)Z.push({t:'FVG',kind:'B',bot,top,i:x.i0})}
+   if(g.h<x.l){const bot=g.h,top=x.l;   // bearish gap
+    let inv=false;for(let q=k+1;q<=j-1;q++)if(H[q].c>top)inv=true;
+    if(inv){if(p.kIFVG){const z={t:'IFVG',kind:'B',bot,top,i:x.i0};let ok=true;for(let q=k+1;q<=j-1;q++)if(H[q].c<bot)ok=false;if(ok)Z.push(z)}}
+    else if(p.kFVG)Z.push({t:'FVG',kind:'S',bot,top,i:x.i0})}}}
+ return Z}
+const KLP={klLook:30,kOHP:1,kOLP:1,kRB:1,kOB:1,kFVG:1,kIFVG:1,kBB:1};
+function klPick(H,j,ref,b,ex){if(j<3)return null;const rng=ref.h-ref.l;let kz=null;
+ for(const z of klZones(H,j,KLP)){if(b){if(z.kind=='B'&&z.bot<=ref.l+.1*rng&&ex<=z.top&&ex>=z.bot-.3*rng&&(!kz||z.top>kz.top))kz=z}
+  else if(z.kind=='S'&&z.top>=ref.h-.1*rng&&ex>=z.bot&&ex<=z.top+.3*rng&&(!kz||z.bot<kz.bot))kz=z}
+ return kz}
 function crtCalc(d,p){
  const n=d.length,S=[],M=[],bs=n>1?d[1].time-d[0].time:300,hs=p.htfMin*60;
  if(n<10||bs*4>hs)return{lines:[],sigs:S,marks:M,note:'The chart timeframe must be at most a quarter of the high timeframe'};
@@ -127,7 +161,7 @@ function crtCalc(d,p){
   const rm=(b?(ref.h+ref.l)/2-en:en-(ref.h+ref.l)/2)/Math.abs(en-sl),s=mk(d,i,side,en,sl,p.tp1M=='mid'&&rm>0?Math.min(rm,rr):p.tp1R>0?Math.min(p.tp1R,rr):rr,rr);
   s.st='OPEN';s.txt=(b?'BUY':'SELL')+' | '+lab+' CRT + CISD';
   s.why='Reason: '+lab+' CRT. Price raided the previous '+lab+' candle '+(b?'low':'high')+' and came back inside, then CISD confirmed on '+bs/60+'m. Target: '+lab+' '+(b?'CRH':'CRL')+'.';
-  s.meta={ref,lv,tp,rr,cs:H[j].i0,bars:Math.round(hs/bs)};st.done=true;live.push(s);S.push(s)}
+  s.meta={ref,lv,tp,rr,cs:H[j].i0,bars:Math.round(hs/bs),kz:klPick(H,j,ref,b,b?st.lo:st.hi)};st.done=true;live.push(s);S.push(s)}
 
  return{lines:[],sigs:S,marks:M}}
 const CRT={id:'crt',name:'CRT: Range, Raid, Run (CISD)',calc:crtCalc,params:[['htfMin','High timeframe (minutes: 60, 120, 180, 240...)',180],['off','Candle alignment offset in hours (2 = broker day starts 22:00 UTC)',2],['slMode','Stop loss: raid = beyond the raid extreme, pct = % of entry','raid',['raid','pct']],['slBuf','SL buffer beyond the raid extreme (%)',0.03],['slPct','SL % of entry (only if mode = pct)',0.15],['tp1M','TP1 target: mid = 50% of the CRT range, R = fixed R','mid',['mid','R']],['tp1R','TP1 in R (when TP1 target = R)',1],['minRR','Minimum RR to the target',1],['ext','Line extension (bars)',7],['useSell','Enable SELL',true],['useBuy','Enable BUY',true]]};
@@ -149,7 +183,7 @@ function fire(s,si,d,tg){si=si==null?SYM:si;d=d||D;const m=`${SYMS[si][0]} ${cur
  if(snd)try{ac=ac||new AudioContext();ac.resume();const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=s.side=='BUY'?880:440;g.gain.value=.15;o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+.35)}catch(e){}
  try{if(window.Notification&&Notification.permission=='granted')new Notification('Signal',{body:m})}catch(e){}
  try{const a=JSON.parse(localStorage.getItem('ih_log')||'[]');a.unshift({t:Date.now()/1000,side:s.side,m});localStorage.setItem('ih_log',JSON.stringify(a.slice(0,100)))}catch(e){}
- if(tg||$('src').value=='live')tgSend(sigMsg(s,si,d))}
+ if(tg||$('src').value=='live')tgSend(sigMsg(s,si,d)).then(ok=>{if(ok)tgSend(whyMsg(s,si,d))})}
 function render(fit){let R;try{R=cur.calc(D,P[cur.id],H)}catch(e){$('stats').textContent='Indicator error: '+e.message;return}
  const up=cv('--up'),dn=cv('--dn');R.sigs=R.sigs||[];
  {const lp=D.length?D[D.length-1].close:1,dp=lp>=100?2:lp>=1?4:lp>=.01?6:8;cs.applyOptions({priceFormat:{type:'price',precision:dp,minMove:Math.pow(10,-dp)}})}
@@ -240,7 +274,7 @@ function extra(d,p,A){const n=d.length,sw=Math.max(2,p.sw|0),o={Z:[],Q:[],TL:[]}
  return o}
 const C={tl:'#0e8f7e',rd:'#e5384f',cy:'#18b4c8',in:'#2a1f8f',or:'#ec6e00',gy:'#7b7e85',gn:'#2f9e44'},TFN=['M1','M5','M15','M30','H1','H4'];
 const pipSz=(si=SYM)=>{const n=SYMS[si][0];return n.startsWith('XAU')?.1:n.startsWith('XAG')?.01:n.includes('JPY')?.01:SYMS[si][3]=='Forex'?.0001:1};
-function hdrUpd(L){const S=SYMS[SYM],hl=crtHl((P.crt||{}).htfMin||180),pz=pipSz(),u=S[3]=='Crypto'?'POINTS':'PIPS',h2=$('h2'),
+function hdrUpd(L){try{hpDraw(L)}catch(e){}const S=SYMS[SYM],hl=crtHl((P.crt||{}).htfMin||180),pz=pipSz(),u=S[3]=='Crypto'?'POINTS':'PIPS',h2=$('h2'),
  U=(d,o)=>d.toLocaleString('en-GB',{...o,timeZone:'UTC'}).toUpperCase().replace(/,/g,''),lt=D.length?new Date(D[D.length-1].time*1000):null;
  $('ft').innerHTML=lt?'🕒 '+U(lt,{day:'2-digit',month:'short'})+' · '+U(lt,{hour:'2-digit',minute:'2-digit',hour12:false})+' UTC · <b>'+TFN[TFI]+'</b> · Not financial advice':'';
  if(!L){$('h1').textContent=S[0].replace('/','')+' · '+hl+' CRT · waiting for a setup';h2.textContent='NO SIGNAL YET';h2.className='z';$('h3').innerHTML='';return}
@@ -258,6 +292,35 @@ async function tgSend(text,force){const g=TG(),m=$('tgm'),hh=()=>new Date().toTi
 function sigMsg(s,si,d){si=si==null?SYM:si;d=d||D;const b=s.side=='BUY',m=s.meta||{},pz=pipSz(si),pp=v=>SYMS[si][3]=='Crypto'?(Math.abs(v-s.entry)/s.entry*100).toFixed(2)+'%':(Math.abs(v-s.entry)/pz).toFixed(1)+' pips';
  return (b?'🟢 ':'🔴 ')+'<b>'+s.side+' '+SYMS[si][0].replace('/','')+'</b> · '+crtHl(P.crt.htfMin)+' CRT · '+TFN[TFI]+'\n\nEntry: <b>'+f(s.entry)+'</b>\nSL: '+f(s.sl)+' ('+pp(s.sl)+')\nTP1: '+f(s.tp1)+' ('+pp(s.tp1)+')\nTP2: '+f(s.tp2)+' ('+pp(s.tp2)+')\nRR 1:'+(m.rr||s.r2).toFixed(1)+'\n\n🕒 '+tm(d[s.i].time)}
 function seen(k){try{const a=JSON.parse(localStorage.getItem('ih_seen')||'[]');if(a.includes(k))return 1;a.push(k);localStorage.setItem('ih_seen',JSON.stringify(a.slice(-300)))}catch(e){}return 0}
+const KLN={FVG:'FVG',IFVG:'IFVG',OB:'Order Block',BB:'Breaker Block',RB:'Rejection Block',OHP:'Old High (OHP)',OLP:'Old Low (OLP)'};
+function htfBuild(d,p){const hs=p.htfMin*60,B=[];for(let i=0;i<d.length;i++){const k=Math.floor((d[i].time+(p.off||0)*3600)/hs);let h=B[B.length-1];
+ if(!h||h.k!=k){h={k,i0:i,o:d[i].open,h:d[i].high,l:d[i].low,c:d[i].close,cnt:0};B.push(h)}h.h=Math.max(h.h,d[i].high);h.l=Math.min(h.l,d[i].low);h.c=d[i].close;h.cnt++}return B}
+function hpDraw(L){const cv=$('hp'),w=Math.max(220,cv.parentNode.clientWidth),h=400,dpr=window.devicePixelRatio||1;
+ if(cv.width!=Math.round(w*dpr)||cv.height!=Math.round(h*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);cv.style.width=w+'px';cv.style.height=h+'px'}
+ const c=cv.getContext('2d'),pr=P.crt||{},lab=crtHl(pr.htfMin||180);c.setTransform(dpr,0,0,dpr,0,0);c.clearRect(0,0,w,h);c.textBaseline='middle';
+ const T=(s,x,y,col,sz,al,wt)=>{c.font=(wt||600)+' '+(sz||12)+'px system-ui,sans-serif';c.fillStyle=col;c.textAlign=al||'left';c.fillText(s,x,y)};
+ if(!L||!L.meta){T(lab+' CRT',14,22,'#14181f',15,'left',700);T('No setup yet',14,44,'#6b6b70',12);return}
+ const m=L.meta,k=m.kz,b=L.side=='BUY',HB=htfBuild(D,pr),j=HB.findIndex(x=>x.i0==m.cs),r=HB.findIndex(x=>x.i0==m.ref.i0);if(j<0||r<0)return;
+ const ki=k?HB.findIndex(x=>x.i0==k.i):-1,e=Math.min(HB.length-1,j+3);let a=Math.max(0,Math.min(r-2,ki>=0?ki-1:r-2));if(e-a+1>14)a=e-13;
+ const V=HB.slice(a,e+1),N=V.length,x0=12,x1=w-86,sl=(x1-x0)/N,bw=Math.min(34,sl*.6),X=q=>x0+(q-a+.5)*sl;
+ let lo=Math.min(...V.map(v=>v.l)),hi=Math.max(...V.map(v=>v.h));if(k){lo=Math.min(lo,k.bot);hi=Math.max(hi,k.top)}const pd=(hi-lo)*.1||1;lo-=pd;hi+=pd;
+ const Y=v=>64+(hi-v)/(hi-lo)*(h-64-18),hl=(xa,xb,y,col,wd)=>{c.beginPath();c.strokeStyle=col;c.lineWidth=wd;c.moveTo(xa,y);c.lineTo(xb,y);c.stroke()};
+ T(lab+' CRT · '+(k?KLN[k.t]:'no key level'),14,20,'#14181f',15,'left',700);
+ T(k?(k.bot==k.top?f(k.bot):f(k.bot)+' – '+f(k.top)):'CRT rules only',14,42,'#6b6b70',12,'left',500);
+ if(k){const xs=ki>=a?X(ki)-bw/2:x0;hl(xs,x1+4,Y(k.top),'#222',1.5);if(k.top!=k.bot)hl(xs,x1+4,Y(k.bot),'#222',1.5);T(k.t,x1+8,Y(k.top)-9,'#222',12,'left',700)}
+ const xr=X(r)-bw/2;hl(xr,x1+4,Y(m.ref.h),'#555',1);hl(xr,x1+4,Y(m.ref.l),'#555',1);T('CRT High',x1+8,Y(m.ref.h)+2,'#555',11,'left',500);T('CRT Low',x1+8,Y(m.ref.l)+2,'#555',11,'left',500);
+ V.forEach((v,q)=>{const x=X(a+q),col=v.c>=v.o?'#4caf50':'#111';c.strokeStyle=col;c.lineWidth=2;c.beginPath();c.moveTo(x,Y(v.h));c.lineTo(x,Y(v.l));c.stroke();
+  const yt=Y(Math.max(v.o,v.c)),yb=Y(Math.min(v.o,v.c));c.fillStyle=col;c.fillRect(x-bw/2,yt,bw,Math.max(2,yb-yt))});
+ [[r,'1'],[j,'2']].forEach(([q,n])=>{const x=X(q),y=Y(HB[q].h)-16;c.fillStyle=C.or;c.beginPath();c.arc(x,y,9,0,7);c.fill();T(n,x,y+1,'#fff',11,'center',700)});
+ T(b?'BUY ▲':'SELL ▼',X(j),b?Y(HB[j].l)+16:Y(HB[j].h)-34,b?C.tl:C.rd,12,'center',700)}
+const KLT={FVG:'FVG: விலை வேகமாகச் சென்று விட்டுச் சென்ற இடைவெளி',IFVG:'IFVG: உடைந்த FVG எதிர்த் திசையில் தடை/ஆதரவாக மாறியது',OB:'Order Block: பெரிய ஆர்டர் இருந்த கேண்டில் பகுதி',BB:'Breaker Block: உடைந்த Order Block எதிர்த் திசை மண்டலமாக மாறியது',RB:'Rejection Block: நீண்ட திரி உள்ள கேண்டில், விலை நிராகரித்த இடம்',OHP:'OHP: பழைய உயர்வு எடுக்கப்பட்ட இடம்',OLP:'OLP: பழைய தாழ்வு எடுக்கப்பட்ட இடம்'};
+function whyMsg(s,si,d){si=si==null?SYM:si;const m=s.meta||{},b=s.side=='BUY',lab=crtHl(P.crt.htfMin),r=m.ref||{h:0,l:0},k=m.kz;
+ return '📌 <b>ஏன் இந்த ட்ரேட்?</b> ('+SYMS[si][0].replace('/','')+' '+s.side+')\n\n'
+ +'1️⃣ '+lab+' CRT கேண்டில் வரம்பு அமைத்தது: உயர்வு '+f(r.h)+', தாழ்வு '+f(r.l)+'.\n'
+ +'2️⃣ அடுத்த '+lab+' கேண்டில் வரம்பின் '+(b?'தாழ்வை':'உயர்வை')+' உடைத்து (sweep) liquidity எடுத்தது.\n'
+ +'3️⃣ விலை மீண்டும் வரம்புக்குள் திரும்பி '+TFN[TFI]+'-ல் CISD உறுதியானது → '+(b?'வாங்கலாம் (BUY)':'விற்கலாம் (SELL)')+'.\n'
+ +'🎯 இலக்கு: '+lab+' CRT '+(b?'உயர்வு':'தாழ்வு')+' '+f(s.tp2)+'.\n'
+ +(k?'🔑 Key level: '+KLT[k.t]+' ('+(k.bot==k.top?f(k.bot):f(k.bot)+' – '+f(k.top))+'). Sweep இந்த இடத்தில் நடந்ததால் ட்ரேட்டுக்கு கூடுதல் உறுதி.':'🔑 Key level: எதுவும் இல்லை, CRT விதிகள் மட்டும் பூர்த்தியானது.')}
 function focusView(L){const n=D.length;if(!n)return;let from=n-120;if(L&&L.meta)from=Math.min(L.meta.ref.i0-6,n-90);
  chart.timeScale().setVisibleLogicalRange({from:Math.max(-3,from,n-420),to:n+16})}
 function initOv(){OV=document.createElement('canvas');OV.id='ov';$('chart').append(OV);ovx=OV.getContext('2d');
@@ -283,6 +346,7 @@ function paintOv(){const w=$('chart').clientWidth,h=$('chart').clientHeight,dpr=
   box(xs,xe,ye,y2,'rgba(14,143,126,.2)');box(xs,xe,ye,ys,'rgba(229,56,79,.18)');
   ln(xs,xe,y2,C.tl,1.4);ln(xs,xe,ye,C.cy,1.4);ln(xs,xe,ys,C.rd,1.4);ln(xs,xe,y1,C.gy,1.1,[4,3]);
   tx('TP2',xe+8,y2,C.tl);tx('TP1',xe+8,y1,'#555');tx('Entry',xe+8,ye,'#0b8fa3');tx('SL',xe+8,ys,'#c42f45');
+  if(m.kz){const k=m.kz,xk=X(k.i),ya=Y(k.top),yb=Y(k.bot);if(xk!=null&&ya!=null&&yb!=null){ln(xk,xe,ya,'#333',1.2);if(k.top!=k.bot)ln(xk,xe,yb,'#333',1.2);tx(k.t,Math.max(xk,4)+4,ya-9,'#222','left')}}
   let xi=s.i,ex=b?Infinity:-Infinity;for(let j=m.cs;j<=s.i;j++){if(b?D[j].low<ex:D[j].high>ex){ex=b?D[j].low:D[j].high;xi=j}}
   const sx=X(xi),sy=Y(ex);if(sx!=null&&sy!=null){const q=b?1:-1;c.strokeStyle=c.fillStyle=C.or;c.lineWidth=1.3;c.beginPath();c.moveTo(sx-38,sy+q*20);c.lineTo(sx-4,sy+q*5);c.stroke();
    c.beginPath();c.moveTo(sx-2,sy+q*3);c.lineTo(sx-10,sy+q*4);c.lineTo(sx-5,sy+q*10);c.fill();tx('SWEEP',sx-42,sy+q*22,C.or,'right')}
@@ -409,6 +473,7 @@ $('wlt').onclick=e=>{const r=e.target.closest('tr[data-i]');if(!r)return;$('sym'
 $('wlb').textContent='Scanning: '+(wlOn?'on':'off');$('wlb').classList.toggle('on',!!wlOn);
 $('wlb').onclick=()=>{wlOn=!wlOn;try{localStorage.setItem('ih_wl',wlOn?'1':'0')}catch(e){}$('wlb').textContent='Scanning: '+(wlOn?'on':'off');$('wlb').classList.toggle('on',!!wlOn)};
 wlDraw();setInterval(()=>{if(wlOn)wlTick()},3000);
+addEventListener('resize',()=>{try{hpDraw(RX&&RX.sigs.slice(-1)[0])}catch(e){}});
 $('tgf').onclick=async()=>{const tok=$('tgt').value.trim(),m=$('tgm');m.style.color='';if(!tok){m.textContent='Paste the bot token first, send /start to your bot in Telegram, then press this again.';return}
  try{const j=await(await fetch('https://api.telegram.org/bot'+tok+'/getUpdates')).json();if(!j.ok)throw new Error(j.description);
   const u=j.result.map(x=>(x.message||x.channel_post||x.my_chat_member||{}).chat).filter(Boolean).pop();
@@ -422,4 +487,4 @@ $('ghc').onclick=async()=>{const repo=$('ghr').value.trim(),tok=$('ght').value.t
  try{const a=await fetch('https://api.github.com/repos/'+repo+'/contents/config.json',{headers:h}),r=await fetch('https://api.github.com/repos/'+repo+'/actions/runs?per_page=1',{headers:h}),run=r.ok?(await r.json()).workflow_runs[0]:null;
   m.textContent='Repository: '+(a.ok?'config.json found':a.status==404?'reachable, config.json missing (press Send settings)':'error '+a.status)+'. Bot run: '+(run?run.name+' · '+(run.conclusion||run.status)+' · '+tm(Date.parse(run.updated_at)/1000):'no runs found')}
  catch(e){m.textContent='Could not check: '+e.message}};
-</script><div style="position:fixed;bottom:3px;right:8px;font:10px system-ui,sans-serif;opacity:.55;pointer-events:none;z-index:9">v7-CRT</div></body></html>
+</script><div style="position:fixed;bottom:3px;right:8px;font:10px system-ui,sans-serif;opacity:.55;pointer-events:none;z-index:9">v8-CRT</div></body></html>
