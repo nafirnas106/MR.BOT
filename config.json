@@ -6,400 +6,420 @@
       "name": "BTCUSD-crt",
       "symbol": "BTC/USD",
       "source": "binance",
-      "tf": "15m",
+      "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 240,
+        "htfMin": 120,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
         "slPct": 0.15,
         "tp1M": "mid",
         "tp1R": 1,
-        "minRR": 1.2,
+        "minRR": 2,
         "ext": 7,
         "useSell": true,
-        "useBuy": true
+        "useBuy": true,
+        "needKey": true
       }
     },
     {
       "name": "ETHUSD-crt",
       "symbol": "ETH/USD",
       "source": "binance",
-      "tf": "15m",
+      "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 240,
+        "htfMin": 120,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
         "slPct": 0.15,
         "tp1M": "mid",
         "tp1R": 1,
-        "minRR": 1.2,
+        "minRR": 2,
         "ext": 7,
         "useSell": true,
-        "useBuy": true
+        "useBuy": true,
+        "needKey": true
       }
     },
     {
       "name": "BNBUSD-crt",
       "symbol": "BNB/USD",
       "source": "binance",
-      "tf": "15m",
+      "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 240,
+        "htfMin": 120,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
         "slPct": 0.15,
         "tp1M": "mid",
         "tp1R": 1,
-        "minRR": 1.2,
+        "minRR": 2,
         "ext": 7,
         "useSell": true,
-        "useBuy": true
+        "useBuy": true,
+        "needKey": true
       }
     },
     {
       "name": "SOLUSD-crt",
       "symbol": "SOL/USD",
       "source": "binance",
-      "tf": "15m",
+      "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 240,
+        "htfMin": 120,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
         "slPct": 0.15,
         "tp1M": "mid",
         "tp1R": 1,
-        "minRR": 1.2,
+        "minRR": 2,
         "ext": 7,
         "useSell": true,
-        "useBuy": true
+        "useBuy": true,
+        "needKey": true
       }
     },
     {
       "name": "XRPUSD-crt",
       "symbol": "XRP/USD",
       "source": "binance",
-      "tf": "15m",
+      "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 240,
+        "htfMin": 120,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
         "slPct": 0.15,
         "tp1M": "mid",
         "tp1R": 1,
-        "minRR": 1.2,
+        "minRR": 2,
         "ext": 7,
         "useSell": true,
-        "useBuy": true
+        "useBuy": true,
+        "needKey": true
       }
     },
     {
       "name": "ADAUSD-crt",
       "symbol": "ADA/USD",
       "source": "binance",
-      "tf": "15m",
+      "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 240,
+        "htfMin": 120,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
         "slPct": 0.15,
         "tp1M": "mid",
         "tp1R": 1,
-        "minRR": 1.2,
+        "minRR": 2,
         "ext": 7,
         "useSell": true,
-        "useBuy": true
+        "useBuy": true,
+        "needKey": true
       }
     },
     {
       "name": "DOGEUSD-crt",
       "symbol": "DOGE/USD",
       "source": "binance",
-      "tf": "15m",
+      "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 240,
+        "htfMin": 120,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
         "slPct": 0.15,
         "tp1M": "mid",
         "tp1R": 1,
-        "minRR": 1.2,
+        "minRR": 2,
         "ext": 7,
         "useSell": true,
-        "useBuy": true
+        "useBuy": true,
+        "needKey": true
       }
     },
     {
       "name": "TRXUSD-crt",
       "symbol": "TRX/USD",
       "source": "binance",
-      "tf": "15m",
+      "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 240,
+        "htfMin": 120,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
         "slPct": 0.15,
         "tp1M": "mid",
         "tp1R": 1,
-        "minRR": 1.2,
+        "minRR": 2,
         "ext": 7,
         "useSell": true,
-        "useBuy": true
+        "useBuy": true,
+        "needKey": true
       }
     },
     {
       "name": "AVAXUSD-crt",
       "symbol": "AVAX/USD",
       "source": "binance",
-      "tf": "15m",
+      "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 240,
+        "htfMin": 120,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
         "slPct": 0.15,
         "tp1M": "mid",
         "tp1R": 1,
-        "minRR": 1.2,
+        "minRR": 2,
         "ext": 7,
         "useSell": true,
-        "useBuy": true
+        "useBuy": true,
+        "needKey": true
       }
     },
     {
       "name": "LINKUSD-crt",
       "symbol": "LINK/USD",
       "source": "binance",
-      "tf": "15m",
+      "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 240,
+        "htfMin": 120,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
         "slPct": 0.15,
         "tp1M": "mid",
         "tp1R": 1,
-        "minRR": 1.2,
+        "minRR": 2,
         "ext": 7,
         "useSell": true,
-        "useBuy": true
+        "useBuy": true,
+        "needKey": true
       }
     },
     {
       "name": "XAUUSD-crt",
       "symbol": "XAU/USD",
       "source": "twelvedata",
-      "tf": "15m",
+      "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 240,
+        "htfMin": 120,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
         "slPct": 0.15,
         "tp1M": "mid",
         "tp1R": 1,
-        "minRR": 1.2,
+        "minRR": 2,
         "ext": 7,
         "useSell": true,
-        "useBuy": true
+        "useBuy": true,
+        "needKey": true
       }
     },
     {
       "name": "EURUSD-crt",
       "symbol": "EUR/USD",
       "source": "twelvedata",
-      "tf": "15m",
+      "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 240,
+        "htfMin": 120,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
         "slPct": 0.15,
         "tp1M": "mid",
         "tp1R": 1,
-        "minRR": 1.2,
+        "minRR": 2,
         "ext": 7,
         "useSell": true,
-        "useBuy": true
+        "useBuy": true,
+        "needKey": true
       }
     },
     {
       "name": "GBPUSD-crt",
       "symbol": "GBP/USD",
       "source": "twelvedata",
-      "tf": "15m",
+      "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 240,
+        "htfMin": 120,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
         "slPct": 0.15,
         "tp1M": "mid",
         "tp1R": 1,
-        "minRR": 1.2,
+        "minRR": 2,
         "ext": 7,
         "useSell": true,
-        "useBuy": true
+        "useBuy": true,
+        "needKey": true
       }
     },
     {
       "name": "USDJPY-crt",
       "symbol": "USD/JPY",
       "source": "twelvedata",
-      "tf": "15m",
+      "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 240,
+        "htfMin": 120,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
         "slPct": 0.15,
         "tp1M": "mid",
         "tp1R": 1,
-        "minRR": 1.2,
+        "minRR": 2,
         "ext": 7,
         "useSell": true,
-        "useBuy": true
+        "useBuy": true,
+        "needKey": true
       }
     },
     {
       "name": "AUDUSD-crt",
       "symbol": "AUD/USD",
       "source": "twelvedata",
-      "tf": "15m",
+      "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 240,
+        "htfMin": 120,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
         "slPct": 0.15,
         "tp1M": "mid",
         "tp1R": 1,
-        "minRR": 1.2,
+        "minRR": 2,
         "ext": 7,
         "useSell": true,
-        "useBuy": true
+        "useBuy": true,
+        "needKey": true
       }
     },
     {
       "name": "USDCAD-crt",
       "symbol": "USD/CAD",
       "source": "twelvedata",
-      "tf": "15m",
+      "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 240,
+        "htfMin": 120,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
         "slPct": 0.15,
         "tp1M": "mid",
         "tp1R": 1,
-        "minRR": 1.2,
+        "minRR": 2,
         "ext": 7,
         "useSell": true,
-        "useBuy": true
+        "useBuy": true,
+        "needKey": true
       }
     },
     {
       "name": "USDCHF-crt",
       "symbol": "USD/CHF",
       "source": "twelvedata",
-      "tf": "15m",
+      "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 240,
+        "htfMin": 120,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
         "slPct": 0.15,
         "tp1M": "mid",
         "tp1R": 1,
-        "minRR": 1.2,
+        "minRR": 2,
         "ext": 7,
         "useSell": true,
-        "useBuy": true
+        "useBuy": true,
+        "needKey": true
       }
     },
     {
       "name": "NZDUSD-crt",
       "symbol": "NZD/USD",
       "source": "twelvedata",
-      "tf": "15m",
+      "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 240,
+        "htfMin": 120,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
         "slPct": 0.15,
         "tp1M": "mid",
         "tp1R": 1,
-        "minRR": 1.2,
+        "minRR": 2,
         "ext": 7,
         "useSell": true,
-        "useBuy": true
+        "useBuy": true,
+        "needKey": true
       }
     },
     {
       "name": "EURJPY-crt",
       "symbol": "EUR/JPY",
       "source": "twelvedata",
-      "tf": "15m",
+      "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 240,
+        "htfMin": 120,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
         "slPct": 0.15,
         "tp1M": "mid",
         "tp1R": 1,
-        "minRR": 1.2,
+        "minRR": 2,
         "ext": 7,
         "useSell": true,
-        "useBuy": true
+        "useBuy": true,
+        "needKey": true
       }
     },
     {
       "name": "GBPJPY-crt",
       "symbol": "GBP/JPY",
       "source": "twelvedata",
-      "tf": "15m",
+      "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 240,
+        "htfMin": 120,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
         "slPct": 0.15,
         "tp1M": "mid",
         "tp1R": 1,
-        "minRR": 1.2,
+        "minRR": 2,
         "ext": 7,
         "useSell": true,
-        "useBuy": true
+        "useBuy": true,
+        "needKey": true
       }
     }
   ]
