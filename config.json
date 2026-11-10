@@ -9,7 +9,7 @@
       "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 120,
+        "htfMin": 60,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
@@ -30,7 +30,7 @@
       "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 120,
+        "htfMin": 60,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
@@ -51,7 +51,7 @@
       "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 120,
+        "htfMin": 60,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
@@ -72,7 +72,7 @@
       "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 120,
+        "htfMin": 60,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
@@ -93,7 +93,7 @@
       "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 120,
+        "htfMin": 60,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
@@ -114,7 +114,7 @@
       "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 120,
+        "htfMin": 60,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
@@ -135,7 +135,7 @@
       "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 120,
+        "htfMin": 60,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
@@ -156,7 +156,7 @@
       "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 120,
+        "htfMin": 60,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
@@ -177,7 +177,7 @@
       "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 120,
+        "htfMin": 60,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
@@ -198,7 +198,7 @@
       "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 120,
+        "htfMin": 60,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
@@ -219,7 +219,7 @@
       "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 120,
+        "htfMin": 60,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
@@ -240,7 +240,7 @@
       "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 120,
+        "htfMin": 60,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
@@ -261,7 +261,7 @@
       "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 120,
+        "htfMin": 60,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
@@ -282,7 +282,7 @@
       "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 120,
+        "htfMin": 60,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
@@ -303,7 +303,7 @@
       "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 120,
+        "htfMin": 60,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
@@ -324,7 +324,7 @@
       "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 120,
+        "htfMin": 60,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
@@ -345,7 +345,7 @@
       "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 120,
+        "htfMin": 60,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
@@ -366,7 +366,7 @@
       "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 120,
+        "htfMin": 60,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
@@ -387,7 +387,7 @@
       "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 120,
+        "htfMin": 60,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
@@ -408,7 +408,7 @@
       "tf": "5m",
       "indicator": "crt",
       "params": {
-        "htfMin": 120,
+        "htfMin": 60,
         "off": 2,
         "slMode": "raid",
         "slBuf": 0.03,
