@@ -59,7 +59,7 @@ th{color:var(--mut);font-weight:600}
 <p id="tgm" class="note">A message is sent for every new signal while this page or app is open and Live market is selected. The token stays in this browser only.</p></details>
 <p class="note" id="srcnote">Choose "Live market" for real prices. Crypto uses Binance public data. Forex and gold need a free Twelve Data API key.</p>
 <div class="bar"><label>Twelve Data API key (forex and gold only)<input type="text" id="tdk" placeholder="paste your key here" style="width:260px"></label><button id="tds">Save key</button></div>
-<div id="hdr"><div id="h1"></div><div id="h2" class="z"></div><div id="h3"></div></div>
+<div id="hdr"><div id="h1"></div><div id="h2" class="z"></div><div id="h3"></div><button id="wab" style="margin-top:8px">Share on WhatsApp</button></div>
 <div id="cw"><div id="chart"></div><div id="hpw"><canvas id="hp"></canvas></div></div>
 <div id="ft"></div>
 <div id="csvbox" hidden>
@@ -71,9 +71,14 @@ th{color:var(--mut);font-weight:600}
 <p id="stats"></p>
 <div class="sc"><table id="tb"></table></div>
 <h2>Watchlist: 10 crypto + 10 forex / gold</h2>
-<div class="bar"><button id="wlb" class="on">Scanning: on</button></div>
+<div class="bar"><button id="wlb" class="on">Scanning: on</button><button id="wlo">Scan: all 20 pairs</button></div>
 <div class="sc"><table id="wlt"></table></div>
 <p class="note">Uses the CRT settings and timeframe chosen above and sends every new signal to Telegram. Crypto is checked every minute. Forex and gold need your Twelve Data key and each pair is checked every 20 minutes to stay inside the free limit. Keep the app open.</p>
+<h2>One week: crypto and forex / gold</h2>
+<div class="bar"><button id="wkb">Update one-week table</button><span id="wkm" class="note"></span></div>
+<p class="note"><b>Crypto</b></p><div class="sc"><table id="wkc"></table></div>
+<p class="note"><b>Forex and gold</b></p><div class="sc"><table id="wkf"></table></div>
+<p class="note">Counts every trade the current settings would have taken in the last 7 days on the chart timeframe. Forex and gold use one Twelve Data request per pair.</p>
 <h2>Demo accounts (virtual money)</h2>
 <p class="note">Choose an indicator above, then press Start on an account. It opens and closes trades by itself using the risk % you set. It runs only while this page is open. Fills have no spread or slippage.</p>
 <div class="bar"><label>Name<input type="text" id="na" placeholder="Demo 1"></label><label>Balance<input type="number" id="nb" value="10000"></label><label>Risk %<input type="number" id="nr" value="1" step="0.1"></label><button id="nc" class="on">Create demo account</button></div>
@@ -185,7 +190,7 @@ function fire(s,si,d,tg){si=si==null?SYM:si;d=d||D;const m=`${SYMS[si][0]} ${cur
  if(snd)try{ac=ac||new AudioContext();ac.resume();const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=s.side=='BUY'?880:440;g.gain.value=.15;o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+.35)}catch(e){}
  try{if(window.Notification&&Notification.permission=='granted')new Notification('Signal',{body:m})}catch(e){}
  try{const a=JSON.parse(localStorage.getItem('ih_log')||'[]');a.unshift({t:Date.now()/1000,side:s.side,m});localStorage.setItem('ih_log',JSON.stringify(a.slice(0,100)))}catch(e){}
- if(tg||$('src').value=='live')tgSend(sigMsg(s,si,d)).then(ok=>{if(ok)tgSend(whyMsg(s,si,d))})}
+ if(tg||$('src').value=='live'){nfSet('crt:'+SYMS[si][0]+':'+TFI+':'+d[s.i].time,'OPEN');tgSend(sigMsg(s,si,d)).then(ok=>{if(ok)tgSend(whyMsg(s,si,d))})}}
 function render(fit){let R;try{R=cur.calc(D,P[cur.id],H)}catch(e){$('stats').textContent='Indicator error: '+e.message;return}
  const up=cv('--up'),dn=cv('--dn');R.sigs=R.sigs||[];
  {const lp=D.length?D[D.length-1].close:1,dp=lp>=100?2:lp>=1?4:lp>=.01?6:8;cs.applyOptions({priceFormat:{type:'price',precision:dp,minMove:Math.pow(10,-dp)}})}
@@ -204,7 +209,7 @@ function render(fit){let R;try{R=cur.calc(D,P[cur.id],H)}catch(e){$('stats').tex
  $('hist').innerHTML=histHtml(R.sigs);
  $('tb').innerHTML='<tr><th>Time</th><th>Side</th><th>Entry</th><th>SL</th><th>TP1</th><th>TP2</th><th>Status</th><th>R</th></tr>'+R.sigs.slice().reverse().map(s=>`<tr><td>${tm(D[s.i].time)}</td><td class="${s.side}">${s.side}</td><td>${f(s.entry)}</td><td>${f(s.sl)}</td><td>${f(s.tp1)}</td><td>${f(s.tp2)}</td><td class="${cls(s.st)}">${s.st}</td><td>${s.R==null?'-':s.R.toFixed(1)}</td></tr>`).join('');
  if(L&&L.i==D.length-1){const k=($('src').value=='live'?'crt':'demo')+':'+SYMS[SYM][0]+':'+TFI+':'+D[L.i].time;if(!alerted.has(k)){alerted.add(k);if(!seen(k))fire(L)}}
- RX=R;ovD=1;hdrUpd(L);if(fit)focusView(L);paper()}
+ RX=R;ovD=1;hdrUpd(L);if($('src').value=='live')try{nfCheck(R.sigs||[],SYM,D)}catch(e){}if(fit)focusView(L);paper()}
 function ensureP(x){P[x.id]=P[x.id]||{};x.params.forEach(([k,,d])=>{if(P[x.id][k]===undefined)P[x.id][k]=d})}
 function drawParams(){const b=$('params');b.innerHTML='';cur.params.forEach(([k,n,d,o])=>{const l=document.createElement('label'),bo=typeof d=='boolean';let i;
  if(o){i=document.createElement('select');o.forEach(v=>i.add(new Option(v,v)));i.value=P[cur.id][k]}
@@ -276,7 +281,7 @@ function extra(d,p,A){const n=d.length,sw=Math.max(2,p.sw|0),o={Z:[],Q:[],TL:[]}
  return o}
 const C={tl:'#0e8f7e',rd:'#e5384f',cy:'#18b4c8',in:'#2a1f8f',or:'#ec6e00',gy:'#7b7e85',gn:'#2f9e44'},TFN=['M1','M5','M15','M30','H1','H4','D1'];
 const pipSz=(si=SYM)=>{const n=SYMS[si][0];return n.startsWith('XAU')?.1:n.startsWith('XAG')?.01:n.includes('JPY')?.01:SYMS[si][3]=='Forex'?.0001:1};
-function hdrUpd(L){try{hpDraw(L)}catch(e){}const S=SYMS[SYM],hl=crtHl((P.crt||{}).htfMin||180),pz=pipSz(),u=S[3]=='Crypto'?'POINTS':'PIPS',h2=$('h2'),
+function hdrUpd(L){try{hpDraw(L)}catch(e){}try{WAT=L?(sigMsg(L)+'\n\n'+whyMsg(L)).replace(/<[^>]+>/g,''):''}catch(e){WAT=''}const S=SYMS[SYM],hl=crtHl((P.crt||{}).htfMin||180),pz=pipSz(),u=S[3]=='Crypto'?'POINTS':'PIPS',h2=$('h2'),
  U=(d,o)=>d.toLocaleString('en-GB',{...o,timeZone:'UTC'}).toUpperCase().replace(/,/g,''),lt=D.length?new Date(D[D.length-1].time*1000):null;
  $('ft').innerHTML=lt?'🕒 '+U(lt,{day:'2-digit',month:'short'})+' · '+U(lt,{hour:'2-digit',minute:'2-digit',hour12:false})+' UTC · <b>'+TFN[TFI]+'</b> · Not financial advice':'';
  if(!L){$('h1').textContent=S[0].replace('/','')+' · '+hl+' CRT · waiting for a setup';h2.textContent='NO SIGNAL YET';h2.className='z';$('h3').innerHTML='';return}
@@ -323,6 +328,43 @@ function whyMsg(s,si,d){si=si==null?SYM:si;const m=s.meta||{},b=s.side=='BUY',la
  +'🐢 '+(m.soup=='TBS'?'TBS (Turtle Body Soup): கேண்டில் body வரம்புக்கு வெளியே மூடியது, பின் உள்ளே திரும்பியது.':'TWS (Turtle Wick Soup): திரி (wick) மட்டும் வரம்பை உடைத்தது, body வெளியே மூடவில்லை.')+'\n'+'3️⃣ விலை மீண்டும் வரம்புக்குள் திரும்பி '+TFN[TFI]+'-ல் CISD உறுதியானது → '+(b?'வாங்கலாம் (BUY)':'விற்கலாம் (SELL)')+'.\n'
  +'🎯 இலக்கு: '+lab+' CRT '+(b?'உயர்வு':'தாழ்வு')+' '+f(s.tp2)+'.\n'
  +(k?'🔑 Key level: '+KLT[k.t]+' ('+(k.bot==k.top?f(k.bot):f(k.bot)+' – '+f(k.top))+'). Sweep இந்த key level-ஐ தொட்டதால் ட்ரேட் எடுக்கப்பட்டது.':'🔑 Key level: எதுவும் இல்லை, CRT விதிகள் மட்டும் பூர்த்தியானது.')}
+let WAT='';
+const NF=()=>{try{return JSON.parse(localStorage.getItem('ih_nf')||'{}')}catch(e){return{}}};
+function nfSet(k,st){const o=NF();o[k]={st,ts:Date.now()};const ks=Object.keys(o);if(ks.length>200)ks.sort((a,b)=>o[a].ts-o[b].ts).slice(0,ks.length-200).forEach(x=>delete o[x]);try{localStorage.setItem('ih_nf',JSON.stringify(o))}catch(e){}}
+function resMsg(s,si,st){const b=s.side=='BUY',nm=SYMS[si][0].replace('/',''),pz=pipSz(si),cr=SYMS[si][3]=='Crypto',
+ mv=v=>cr?(Math.abs(v-s.entry)/s.entry*100).toFixed(2)+'%':(Math.abs(v-s.entry)/pz).toFixed(1)+' pips',h=(b?'🟢 ':'🔴 ')+s.side+' '+nm+' · '+crtHl(P.crt.htfMin)+' CRT';
+ return st=='TP2'?'🎯 <b>TP2 hit</b> · '+h+'\n+'+mv(s.tp2)
+ :st=='SL'?'❌ <b>SL hit</b> · '+h+'\n−'+mv(s.sl)
+ :st=='TP1 hit'?'✅ <b>TP1 hit</b> · '+h+'\n+'+mv(s.tp1)+(BE?'\nStop moved to entry (break-even)':'')
+ :st=='TP1 then BE'?'⚖️ <b>Closed at break-even after TP1</b> · '+h
+ :'⚠️ <b>TP1 hit, then stopped</b> · '+h}
+function nfCheck(sg,si,d){const o=NF();sg.forEach(s=>{const k='crt:'+SYMS[si][0]+':'+TFI+':'+d[s.i].time,n=o[k];if(!n||n.st==s.st||s.st=='OPEN')return;nfSet(k,s.st);tgSend(resMsg(s,si,s.st))})}
+const WKH='<tr><th>Period</th><th>Trades</th><th>TP1 hit</th><th>TP2 hit</th><th>SL hit</th><th>BE / stopped after TP1</th><th>Net R</th></tr>';
+function wkCount(L,from){let n=0,a=0,b=0,l=0,be=0,net=0;L.forEach(s=>{if(s.t>=from)n++;if(s.t1!=null&&s.t1>=from)a++;if(s.e>=from){if(s.st=='TP2')b++;else if(s.st=='SL')l++;else if(s.st=='TP1 then BE'||s.st=='TP1 then SL')be++;net+=s.R||0}});return{n,a,b,l,be,net}}
+function wkTd(nm,c){const pc=k=>c.n?' ('+Math.round(k*100/c.n)+'%)':'';return `<tr><td>${nm}</td><td>${c.n}</td><td class="up">${c.a}${pc(c.a)}</td><td class="up">${c.b}${pc(c.b)}</td><td class="dn">${c.l}${pc(c.l)}</td><td>${c.be}</td><td class="${c.net>=0?'up':'dn'}">${c.net.toFixed(1)}</td></tr>`}
+let WK=null;
+function wkData(){if(WK)return WK;try{WK=JSON.parse(localStorage.getItem('ih_wk')||'null')}catch(e){WK=null}return WK}
+const tdT=s=>Date.parse((s.length==10?s+'T00:00:00':s.replace(' ','T'))+'Z')/1000;
+async function wkFetch(i,need){const S=SYMS[i];let out=[];
+ if(S[3]=='Crypto'){let end=Date.now();while(out.length<need){const r=await fetch('https://data-api.binance.vision/api/v3/klines?symbol='+S[0].split('/')[0]+'USDT&interval='+BI[TFI]+'&limit=1000&endTime='+end),a=await r.json();if(!Array.isArray(a))throw new Error(a.msg||'no data');if(!a.length)break;
+  out=a.map(x=>({time:Math.floor(x[0]/1000),open:+x[1],high:+x[2],low:+x[3],close:+x[4]})).concat(out);end=a[0][0]-1;if(a.length<1000)break}}
+ else{let key='';try{key=localStorage.getItem('ih_td')||''}catch(e){}if(!key)throw new Error('Twelve Data key needed');
+  const r=await fetch('https://api.twelvedata.com/time_series?symbol='+encodeURIComponent(S[0])+'&interval='+TI[TFI]+'&outputsize='+Math.min(5000,need)+'&timezone=UTC&apikey='+key),j=await r.json();if(j.status=='error'||!j.values)throw new Error(j.message||'no data');
+  out=j.values.slice().reverse().map(x=>({time:Math.floor(tdT(x.datetime)),open:+x.open,high:+x.high,low:+x.low,close:+x.close}))}
+ out.pop();return out}
+async function wkRun(){if(wkBusy)return;wkBusy=1;const m=$('wkm'),pr=P.crt,need=Math.min(5000,Math.ceil((7*86400+36*pr.htfMin*60)/TFS[TFI])+50),rows={};let bad=0;
+ for(const i of WL){const S=SYMS[i];m.textContent='Loading '+S[0]+'...';
+  try{if(S[3]!='Crypto'){const w=9000-(Date.now()-wlLastF);if(w>0)await new Promise(r=>setTimeout(r,w));wlLastF=Date.now()}
+   const d=await wkFetch(i,need),R=CRT.calc(d,pr,H),from=d[d.length-1].time-7*86400;
+   rows[S[0]]=(R.sigs||[]).filter(s=>d[s.i].time>=from).map(s=>({t:d[s.i].time,t1:s.t1i!=null?d[s.t1i].time:null,e:s.ei!=null?d[s.ei].time:-1,st:s.st,R:s.R||0}))}
+  catch(e){bad++;rows[S[0]]={err:/failed to fetch/i.test(e.message)?'No connection (blocked or offline)':e.message}}}
+ WK={tf:TFI,htf:pr.htfMin,at:Date.now(),rows};try{localStorage.setItem('ih_wk',JSON.stringify(WK))}catch(e){}
+ wkBusy=0;wkDraw();if(RX)$('hist').innerHTML=histHtml(RX.sigs)}
+function wkDraw(){const W=wkData(),c=$('wkc'),x=$('wkf'),m=$('wkm');if(!W){c.innerHTML=x.innerHTML='';m.textContent='Press Update to load the one-week table.';return}
+ const mk=g=>{const tot={n:0,a:0,b:0,l:0,be:0,net:0};let h='';WL.filter(i=>(SYMS[i][3]=='Crypto')==g).forEach(i=>{const k=SYMS[i][0],r=W.rows[k];
+  if(!r||r.err){h+=`<tr><td>${k}</td><td colspan="6" class="dn">${esc(r?r.err:'-')}</td></tr>`;return}const q=wkCount(r,0);Object.keys(tot).forEach(z=>{tot[z]+=q[z]});h+=wkTd(k,q)});
+  return WKH.replace('Period','Pair')+h+wkTd('Total',tot)};
+ c.innerHTML=mk(true);x.innerHTML=mk(false);m.textContent='Last 7 days · '+TFN[W.tf]+' · updated '+tm(W.at/1000)+(W.tf!=TFI?' · chart timeframe changed, press Update':'')}
 function focusView(L){const n=D.length;if(!n)return;let from=n-120;if(L&&L.meta)from=Math.min(L.meta.ref.i0-6,n-90);
  chart.timeScale().setVisibleLogicalRange({from:Math.max(-3,from,n-420),to:n+16})}
 function initOv(){OV=document.createElement('canvas');OV.id='ov';$('chart').append(OV);ovx=OV.getContext('2d');
@@ -359,15 +401,11 @@ function paintOv(){const w=$('chart').clientWidth,h=$('chart').clientHeight,dpr=
  c.restore()}
 const curKey=()=>($('src').value=='demo'?'demo:'+SESS:$('src').value)+':'+SYMS[SYM][0]+':'+TFI;
 const saveUI=()=>{try{localStorage.setItem('ih_ui2',JSON.stringify({sym:SYM,tf:TFI,src:$('src').value}))}catch(e){}};
-const botCfg=()=>({breakEvenAfterTP1:BE,maxAgeCandles:3,watches:WL.map(i=>{const S=SYMS[i];return{name:S[0].replace('/','')+'-crt',symbol:S[0],source:S[3]=='Crypto'?'binance':'twelvedata',tf:BI[TFI],indicator:'crt',params:{...P.crt}}})});
+const botCfg=()=>({breakEvenAfterTP1:BE,maxAgeCandles:3,watches:wlList().map(i=>{const S=SYMS[i];return{name:S[0].replace('/','')+'-crt',symbol:S[0],source:S[3]=='Crypto'?'binance':'twelvedata',tf:BI[TFI],indicator:'crt',params:{...P.crt}}})});
 const syncBtn=()=>{const b=$('live');if(b)b.hidden=$('src').value=='live'};
 function histHtml(S){const now=D[D.length-1].time,d0=new Date(now*1000);d0.setHours(0,0,0,0);
- const pr=[['Today',d0.getTime()/1000],['Last 24h',now-86400],['All (from the start)',0]],T=i=>D[i].time;
- const rows=pr.map(([nm,from])=>{let n=0,a=0,b=0,l=0,be=0,net=0;
-  S.forEach(s=>{if(T(s.i)>=from)n++;if(s.t1i!=null&&T(s.t1i)>=from)a++;const e=s.ei!=null?T(s.ei):-1;if(e>=from){if(s.st=='TP2')b++;else if(s.st=='SL')l++;else if(s.st=='TP1 then BE'||s.st=='TP1 then SL')be++;net+=s.R||0}});
-  const pc=k=>n?' ('+Math.round(k*100/n)+'%)':'';
-  return `<tr><td>${nm}</td><td>${n}</td><td class="up">${a}${pc(a)}</td><td class="up">${b}${pc(b)}</td><td class="dn">${l}${pc(l)}</td><td>${be}</td><td class="${net>=0?'up':'dn'}">${net.toFixed(1)}</td></tr>`}).join('');
- return '<tr><th>Period</th><th>Trades</th><th>TP1 hit</th><th>TP2 hit</th><th>SL hit</th><th>BE / stopped after TP1</th><th>Net R</th></tr>'+rows}
+ const T=i=>D[i].time,L=S.map(s=>({t:T(s.i),t1:s.t1i!=null?T(s.t1i):null,e:s.ei!=null?T(s.ei):-1,st:s.st,R:s.R})),W=wkData(),wl=W&&W.tf==TFI?W.rows[SYMS[SYM][0]]:null,full=wl&&!wl.err;
+ return WKH+wkTd('Today',wkCount(L,d0.getTime()/1000))+wkTd('One week'+(full?'':' (loaded candles only)'),wkCount(full?wl:L,now-7*86400))}
 let ws=null,poll=null,FC=null,liveTok=0;
 const BI=['1m','5m','15m','30m','1h','4h','1d'],TI=['1min','5min','15min','30min','1h','4h','1day'];
 function stopLive(){liveTok++;if(ws){try{ws.onclose=null;ws.close()}catch(e){}ws=null}clearInterval(poll);poll=null;FC=null}
@@ -414,7 +452,7 @@ function init(){
  matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{theme();render()});
  $('src').onchange=e=>{setSrc(e.target.value);saveUI();syncBtn()};
  ['Crypto','Forex'].forEach(g=>{const o=document.createElement('optgroup');o.label=g=='Forex'?'Forex and metals':g;SYMS.forEach((s,i)=>{if(s[3]==g)o.append(new Option(s[0],i))});$('sym').append(o)});
- const chg=()=>{theme();const v=$('src').value;if(v=='csv')return;stop();if(ACC.some(a=>a.on)){ACC.forEach(a=>a.on=false);persist();accSig='';drawAcc()}if(v=='live'){startLive();return}RDY=true;demo();render(true)};
+ const chg=()=>{theme();try{wlLabel();wlDraw()}catch(e){}const v=$('src').value;if(v=='csv')return;stop();if(ACC.some(a=>a.on)){ACC.forEach(a=>a.on=false);persist();accSig='';drawAcc()}if(v=='live'){startLive();return}RDY=true;demo();render(true)};
  $('sym').value=SYM;$('sym').onchange=e=>{SYM=+e.target.value;chg();saveUI()};$('tf').value=TFI;$('tf').onchange=e=>{TFI=+e.target.value;chg();saveUI()};
  $('be').textContent='Break-even after TP1: '+(BE?'on':'off');$('be').classList.toggle('on',BE);
  $('be').onclick=()=>{BE=!BE;try{localStorage.setItem('ih_be',BE?'1':'0')}catch(e){}$('be').textContent='Break-even after TP1: '+(BE?'on':'off');$('be').classList.toggle('on',BE);accSig='';render()};
@@ -453,28 +491,33 @@ $('tgs').onclick=tgSave;
 $('tga').onclick=()=>{const g=TG();g.off=!g.off;try{localStorage.setItem('ih_tg',JSON.stringify(g))}catch(e){}$('tga').textContent='Auto-send: '+(g.off?'off':'on');$('tga').classList.toggle('on',!g.off)};
 $('tgx').onclick=async()=>{tgSave();if(await tgSend('✅ Test message from Indicators App',1))$('tgm').textContent='Test sent. Check Telegram.'};
 try{JSON.parse(localStorage.getItem('ih_log')||'[]').forEach(x=>{$('log').querySelector('.empty')?.remove();const e=document.createElement('div');e.className=x.side;e.textContent=tm(x.t)+'  '+x.m;$('log').append(e)})}catch(e){}
-const WL=[0,1,2,3,4,5,6,7,8,9,40,30,31,32,33,34,35,36,38,39],WLS={};let wlOn=1,wlBusy=0,wlLastF=0;
+const WL=[0,1,2,3,4,5,6,7,8,9,40,30,31,32,33,34,35,36,38,39],WLS={};let wlOn=1,wlBusy=0,wlLastF=0,wlOne=0,wkBusy=0;const wlList=()=>wlOne?[SYM]:WL;
 try{wlOn=localStorage.getItem('ih_wl')!=='0'}catch(e){}
+try{wlOne=localStorage.getItem('ih_wlo')==='1'}catch(e){}
 async function wlCandles(i){const S=SYMS[i];let k;
  if(S[3]=='Crypto'){const r=await fetch('https://data-api.binance.vision/api/v3/klines?symbol='+S[0].split('/')[0]+'USDT&interval='+BI[TFI]+'&limit=1000'),a=await r.json();if(!Array.isArray(a))throw new Error(a.msg||'no data');
   k=a.map(x=>({time:Math.floor(x[0]/1000),open:+x[1],high:+x[2],low:+x[3],close:+x[4]}))}
  else{let key='';try{key=localStorage.getItem('ih_td')||''}catch(e){}if(!key)throw new Error('Twelve Data key needed');
   const r=await fetch('https://api.twelvedata.com/time_series?symbol='+encodeURIComponent(S[0])+'&interval='+TI[TFI]+'&outputsize=1500&timezone=UTC&apikey='+key),j=await r.json();if(j.status=='error'||!j.values)throw new Error(j.message||'no data');
-  k=j.values.slice().reverse().map(x=>({time:Math.floor(Date.parse(x.datetime.replace(' ','T')+'Z')/1000),open:+x.open,high:+x.high,low:+x.low,close:+x.close}))}
+  k=j.values.slice().reverse().map(x=>({time:Math.floor(tdT(x.datetime)),open:+x.open,high:+x.high,low:+x.low,close:+x.close}))}
  k.pop();return k}
 async function wlScan(i){const w=WLS[i]=WLS[i]||{};w.at=Date.now();w.tf=TFI;
- try{const d=await wlCandles(i),R=CRT.calc(d,P.crt,H),L=(R.sigs||[]).slice(-1)[0];w.err=0;w.L=L;w.d=d;w.ck=Date.now()/1000;
+ try{const d=await wlCandles(i),R=CRT.calc(d,P.crt,H),L=(R.sigs||[]).slice(-1)[0];w.err=0;w.L=L;w.d=d;w.ck=Date.now()/1000;nfCheck(R.sigs||[],i,d);
   if(L&&d.length-1-L.i<(SYMS[i][3]=='Crypto'?3:6)&&(L.st=='OPEN'||L.st=='TP1 hit')&&!seen('crt:'+SYMS[i][0]+':'+TFI+':'+d[L.i].time))fire(L,i,d,1)}
  catch(e){w.err=/failed to fetch/i.test(e.message)?'No connection (blocked or offline)':e.message}wlDraw()}
-function wlDraw(){$('wlt').innerHTML='<tr><th>Pair</th><th>Last signal</th><th>Entry</th><th>Status</th><th>Checked</th></tr>'+WL.map(i=>{const w=WLS[i]||{},L=w.L;
+function wlDraw(){$('wlt').innerHTML='<tr><th>Pair</th><th>Last signal</th><th>Entry</th><th>Status</th><th>Checked</th></tr>'+wlList().map(i=>{const w=WLS[i]||{},L=w.L;
  return `<tr data-i="${i}" style="cursor:pointer"><td>${SYMS[i][0]}</td><td class="${L?L.side:''}">${w.err?'<span class="dn">'+esc(w.err)+'</span>':L?L.side+' · '+tm(w.d[L.i].time):'-'}</td><td>${L?f(L.entry):'-'}</td><td class="${L?cls(L.st):''}">${L?L.st:'-'}</td><td>${w.ck?tm(w.ck):'-'}</td></tr>`}).join('')}
 function wlTick(){if(wlBusy)return;const now=Date.now(),due=i=>{const w=WLS[i]||{};return w.tf!=TFI||now-(w.at||0)>(SYMS[i][3]=='Crypto'?60000:1200000)},
- i=WL.find(i=>SYMS[i][3]=='Crypto'&&due(i))??WL.find(i=>SYMS[i][3]!='Crypto'&&due(i)&&now-wlLastF>9000);
+ i=wlList().find(i=>SYMS[i][3]=='Crypto'&&due(i))??wlList().find(i=>SYMS[i][3]!='Crypto'&&due(i)&&now-wlLastF>9000);
  if(i==null)return;wlBusy=1;if(SYMS[i][3]!='Crypto')wlLastF=now;wlScan(i).finally(()=>{wlBusy=0})}
 $('wlt').onclick=e=>{const r=e.target.closest('tr[data-i]');if(!r)return;$('sym').value=r.dataset.i;$('sym').onchange({target:$('sym')})};
 $('wlb').textContent='Scanning: '+(wlOn?'on':'off');$('wlb').classList.toggle('on',!!wlOn);
 $('wlb').onclick=()=>{wlOn=!wlOn;try{localStorage.setItem('ih_wl',wlOn?'1':'0')}catch(e){}$('wlb').textContent='Scanning: '+(wlOn?'on':'off');$('wlb').classList.toggle('on',!!wlOn)};
+function wlLabel(){$('wlo').textContent=wlOne?'Scan: only '+SYMS[SYM][0]:'Scan: all 20 pairs';$('wlo').classList.toggle('on',!!wlOne)}
+$('wlo').onclick=()=>{wlOne=!wlOne;try{localStorage.setItem('ih_wlo',wlOne?'1':'0')}catch(e){}wlLabel();wlDraw()};
+$('wkb').onclick=wkRun;wlLabel();wkDraw();{const W=wkData();if(!W||W.tf!=TFI||Date.now()-W.at>6*36e5)setTimeout(wkRun,6000)}
 wlDraw();setInterval(()=>{if(wlOn)wlTick()},3000);
+$('wab').onclick=()=>{const b=$('wab');if(WAT)window.open('https://wa.me/?text='+encodeURIComponent(WAT),'_blank');else{b.textContent='No signal to share yet';setTimeout(()=>{b.textContent='Share on WhatsApp'},2000)}};
 addEventListener('resize',()=>{try{hpDraw(RX&&RX.sigs.slice(-1)[0])}catch(e){}});
 $('tgf').onclick=async()=>{const tok=$('tgt').value.trim(),m=$('tgm');m.style.color='';if(!tok){m.textContent='Paste the bot token first, send /start to your bot in Telegram, then press this again.';return}
  try{const j=await(await fetch('https://api.telegram.org/bot'+tok+'/getUpdates')).json();if(!j.ok)throw new Error(j.description);
@@ -489,4 +532,4 @@ $('ghc').onclick=async()=>{const repo=$('ghr').value.trim(),tok=$('ght').value.t
  try{const a=await fetch('https://api.github.com/repos/'+repo+'/contents/config.json',{headers:h}),r=await fetch('https://api.github.com/repos/'+repo+'/actions/runs?per_page=1',{headers:h}),run=r.ok?(await r.json()).workflow_runs[0]:null;
   m.textContent='Repository: '+(a.ok?'config.json found':a.status==404?'reachable, config.json missing (press Send settings)':'error '+a.status)+'. Bot run: '+(run?run.name+' · '+(run.conclusion||run.status)+' · '+tm(Date.parse(run.updated_at)/1000):'no runs found')}
  catch(e){m.textContent='Could not check: '+e.message}};
-</script><div style="position:fixed;bottom:3px;right:8px;font:10px system-ui,sans-serif;opacity:.55;pointer-events:none;z-index:9">v9-CRT</div></body></html>
+</script><div style="position:fixed;bottom:3px;right:8px;font:10px system-ui,sans-serif;opacity:.55;pointer-events:none;z-index:9">v11-CRT</div></body></html>
